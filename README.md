@@ -7,6 +7,8 @@
 [![Rust](https://img.shields.io/badge/Rust-1.70+-orange)](https://www.rust-lang.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 
+### 🌐 **Live Demo:** [https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app/)
+
 ---
 
 ## Abstract
@@ -54,14 +56,14 @@ This architecture solves two fundamental challenges in agent-to-agent interactio
 
 ### Technology Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Blockchain** | Solana (Rust/Anchor) | On-chain reputation storage and validation |
-| **Payment Protocol** | x402 (HTTP 402) | Agent-to-agent micropayment standard |
-| **Orchestration** | Python 3.10+ | Task coordination and LLM integration |
-| **Service Agents** | Node.js 18+ | x402-protected API services |
-| **SDK** | TypeScript 5.0+ | Developer integration library |
-| **Frontend** | Next.js 14 + React 18 | Interactive demonstration UI |
+| Layer                | Technology            | Purpose                                    |
+| -------------------- | --------------------- | ------------------------------------------ |
+| **Blockchain**       | Solana (Rust/Anchor)  | On-chain reputation storage and validation |
+| **Payment Protocol** | x402 (HTTP 402)       | Agent-to-agent micropayment standard       |
+| **Orchestration**    | Python 3.10+          | Task coordination and LLM integration      |
+| **Service Agents**   | Node.js 18+           | x402-protected API services                |
+| **SDK**              | TypeScript 5.0+       | Developer integration library              |
+| **Frontend**         | Next.js 14 + React 18 | Interactive demonstration UI               |
 
 ---
 
@@ -84,6 +86,7 @@ pub struct AgentProfile {
 ```
 
 **Reputation Algorithm:**
+
 - Initial Score: 100
 - Successful Transaction: +1
 - Failed Transaction: -5
@@ -94,12 +97,14 @@ pub struct AgentProfile {
 Implementation of HTTP 402 Payment Required standard for service protection:
 
 **Flow:**
+
 1. Client requests service → 402 Response with payment details
 2. Client executes blockchain payment
 3. Client retries with `X-Payment-Proof` header containing transaction signature
 4. Service validates payment on-chain → 200 Response with data
 
 **Features:**
+
 - Atomic payment verification
 - Blockchain-backed receipts
 - Replay attack prevention via caching
@@ -124,6 +129,7 @@ def llm_task_breakdown(user_query: str) -> List[SubTask]:
 ```
 
 **Capabilities:**
+
 - Natural language task understanding
 - Service requirement identification
 - Budget optimization
@@ -134,15 +140,15 @@ def llm_task_breakdown(user_query: str) -> List[SubTask]:
 TypeScript SDK providing high-level abstractions:
 
 ```typescript
-import { XGovClient } from '@xgov/sdk-ts';
+import { XGovClient } from "@xgov/sdk-ts";
 
 const client = new XGovClient(connection, programId);
 
 // Query agents by service type
-const agents = await client.getAgentsByServiceType('data_scraper');
+const agents = await client.getAgentsByServiceType("data_scraper");
 
 // Select best agent by reputation
-const bestAgent = await client.findBestAgent('data_scraper');
+const bestAgent = await client.findBestAgent("data_scraper");
 
 // Record validation after service completion
 await client.recordValidation(sellerPubkey, success, keypair);
@@ -349,15 +355,16 @@ record_validation(
 
 ## Performance Characteristics
 
-| Metric | Value |
-|--------|-------|
+| Metric                          | Value                            |
+| ------------------------------- | -------------------------------- |
 | **On-chain Validation Latency** | ~2-3 seconds (Solana block time) |
-| **x402 Payment Verification** | ~400ms (RPC call + validation) |
-| **Orchestrator Task Planning** | ~1-2 seconds (OpenAI API) |
-| **Service Agent Response** | ~200-500ms (after payment) |
-| **Total End-to-End Flow** | ~5-10 seconds |
+| **x402 Payment Verification**   | ~400ms (RPC call + validation)   |
+| **Orchestrator Task Planning**  | ~1-2 seconds (OpenAI API)        |
+| **Service Agent Response**      | ~200-500ms (after payment)       |
+| **Total End-to-End Flow**       | ~5-10 seconds                    |
 
 **Scalability:**
+
 - Solana TPS: 65,000 transactions/second theoretical, 2,000+ practical
 - Service agents: Horizontally scalable via load balancer
 - Reputation lookups: O(n) where n = agents per service type (typically < 100)
@@ -396,19 +403,20 @@ npm test
 
 ## Hackathon Track Alignment
 
-| Track | Implementation | Evidence |
-|-------|---------------|-----------|
-| **Best x402 Agent Application** | Orchestrator with LLM-powered task planning, reputation-based agent selection, and x402 payment execution | `agents/orchestrator-agent/main.py` |
-| **Best Trustless Agent** | Solana-based reputation program with on-chain validation recording and PDA account architecture | `programs/src/lib.rs` |
-| **Best x402 API Integration** | Production-ready service agent with HTTP 402 implementation and blockchain payment verification | `agents/service-agents/data-analyst-agent/server.js` |
-| **Best AgentPay Demo** | Interactive Next.js UI with real-time timeline, Recharts visualizations, and Solana Explorer integration | `web-ui/src/` |
-| **Best x402 Dev Tool** | TypeScript SDK with comprehensive API for reputation queries, payment execution, and validation recording | `client-libs/xgov-sdk-ts/src/index.ts` |
+| Track                           | Implementation                                                                                            | Evidence                                             |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **Best x402 Agent Application** | Orchestrator with LLM-powered task planning, reputation-based agent selection, and x402 payment execution | `agents/orchestrator-agent/main.py`                  |
+| **Best Trustless Agent**        | Solana-based reputation program with on-chain validation recording and PDA account architecture           | `programs/src/lib.rs`                                |
+| **Best x402 API Integration**   | Production-ready service agent with HTTP 402 implementation and blockchain payment verification           | `agents/service-agents/data-analyst-agent/server.js` |
+| **Best AgentPay Demo**          | Interactive Next.js UI with real-time timeline, Recharts visualizations, and Solana Explorer integration  | `web-ui/src/`                                        |
+| **Best x402 Dev Tool**          | TypeScript SDK with comprehensive API for reputation queries, payment execution, and validation recording | `client-libs/xgov-sdk-ts/src/index.ts`               |
 
 ---
 
 ## Roadmap
 
 ### Phase 1: Core Infrastructure (Completed)
+
 - [x] Solana reputation smart contract
 - [x] x402 payment protocol implementation
 - [x] Orchestrator agent with LLM integration
@@ -417,6 +425,7 @@ npm test
 - [x] Web UI demo
 
 ### Phase 2: Production Hardening (Q2 2025)
+
 - [ ] Mainnet deployment
 - [ ] Multi-token support (SOL, USDC, BONK)
 - [ ] Advanced reputation algorithms (decay, stakes)
@@ -424,6 +433,7 @@ npm test
 - [ ] SDK plugins for popular frameworks
 
 ### Phase 3: Ecosystem Growth (Q3-Q4 2025)
+
 - [ ] Agent registry and discovery protocol
 - [ ] Governance mechanism for protocol upgrades
 - [ ] Cross-chain bridge for reputation portability
@@ -443,6 +453,7 @@ Contributions are welcome! Please follow these guidelines:
 5. Open a Pull Request
 
 **Code Standards:**
+
 - Rust: Follow official Rust style guide, run `cargo fmt` and `cargo clippy`
 - TypeScript: ESLint + Prettier configuration provided
 - Python: PEP 8 compliance, type hints required
@@ -501,4 +512,4 @@ If you use this work in academic research, please cite:
 
 **Built for Solana x x402 Hackathon 2025**
 
-*Empowering autonomous agents with trustless reputation and atomic payments*
+_Empowering autonomous agents with trustless reputation and atomic payments_

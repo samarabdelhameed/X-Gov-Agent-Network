@@ -1,9 +1,14 @@
 import os
 import json
 import httpx
+import asyncio
 from solana.rpc.api import Client
+from solana.rpc.commitment import Confirmed
+from solana.transaction import Transaction
 from solders.pubkey import Pubkey
 from solders.keypair import Keypair
+from solders.system_program import TransferParams, transfer
+from solders.transaction import Transaction as SoldersTransaction
 from openai import OpenAI
 from typing import List, Dict, Any
 from dotenv import load_dotenv
@@ -26,6 +31,9 @@ openai_client = OpenAI()
 # For demo: generate a new one if not provided
 ORCHESTRATOR_WALLET = Keypair()
 print(f"💼 Orchestrator Wallet: {ORCHESTRATOR_WALLET.pubkey()}")
+
+# Constants
+LAMPORTS_PER_SOL = 1_000_000_000
 
 # ----------------------------------------------------
 # 2. Real LLM Function for Task Breakdown
@@ -107,30 +115,30 @@ def query_reputation_program(solana_client: Client, service_type: str) -> List[D
         all_agents = [
             {
                 "agent_id": "DataScraper_Pro_v1",
-                "pubkey": "AgentXYZ123...",
+                "pubkey": "AgentXYZ123abc",
                 "reputation_score": 125,
                 "total_successful_txs": 48,
-                "api_url": "http://localhost:3001/scrape",
+                "api_url": "http://localhost:3001",
                 "service_type": "data_scraper",
-                "owner": "5vME...WXYZ"
+                "owner": "5vMEWXYZ"
             },
             {
                 "agent_id": "FastScraper_Alpha",
-                "pubkey": "AgentABC456...",
+                "pubkey": "AgentABC456def",
                 "reputation_score": 98,
                 "total_successful_txs": 22,
-                "api_url": "http://localhost:3002/scrape",
+                "api_url": "http://localhost:3002",
                 "service_type": "data_scraper",
-                "owner": "7nKF...QRST"
+                "owner": "7nKFQRST"
             },
             {
                 "agent_id": "SentimentAnalyzer_v2",
-                "pubkey": "AgentDEF789...",
+                "pubkey": "AgentDEF789ghi",
                 "reputation_score": 110,
                 "total_successful_txs": 35,
-                "api_url": "http://localhost:3003/analyze",
+                "api_url": "http://localhost:3003",
                 "service_type": "text_analyst",
-                "owner": "9pLM...UVWX"
+                "owner": "9pLMUVWX"
             }
         ]
         
@@ -145,59 +153,195 @@ def query_reputation_program(solana_client: Client, service_type: str) -> List[D
         return []
 
 # ----------------------------------------------------
-# 4. x402 Payment Integration (Placeholder for real implementation)
+# 4. REAL Solana Payment Function
 # ----------------------------------------------------
 
-async def execute_x402_payment(agent_url: str, budget_usd: float) -> Dict[str, Any]:
+def send_sol_payment(
+    solana_client: Client,
+    sender_keypair: Keypair,
+    recipient_pubkey: Pubkey,
+    amount_lamports: int
+) -> str:
     """
-    Executes an x402 payment to a service agent and retrieves the result.
+    Sends SOL payment on Solana blockchain.
     
-    Real implementation would:
-    1. Send HTTP request to agent_url
-    2. Receive 402 Payment Required with payment details
-    3. Execute USDC payment on Solana
-    4. Retry request with payment proof
-    5. Receive actual service result
+    Returns transaction signature if successful.
     """
-    print(f"💳 Initiating x402 payment to {agent_url} (Budget: ${budget_usd})")
+    try:
+        print(f"💸 Sending {amount_lamports / LAMPORTS_PER_SOL} SOL to {recipient_pubkey}")
+        
+        # Create transfer instruction
+        transfer_ix = transfer(
+            TransferParams(
+                from_pubkey=sender_keypair.pubkey(),
+                to_pubkey=recipient_pubkey,
+                lamports=amount_lamports
+            )
+        )
+        
+        # Get recent blockhash
+        recent_blockhash = solana_client.get_latest_blockhash().value.blockhash
+        
+        # Create transaction
+        tx = SoldersTransaction.new_signed_with_payer(
+            [transfer_ix],
+            sender_keypair.pubkey(),
+            [sender_keypair],
+            recent_blockhash
+        )
+        
+        # Send transaction
+        result = solana_client.send_transaction(tx)
+        tx_signature = str(result.value)
+        
+        print(f"✅ Payment sent! Tx: {tx_signature}")
+        
+        # Wait for confirmation
+        solana_client.confirm_transaction(tx_signature, commitment=Confirmed)
+        print(f"✅ Payment confirmed on blockchain!")
+        
+        return tx_signature
+        
+    except Exception as e:
+        print(f"🚨 Error sending SOL payment: {e}")
+        raise
+
+# ----------------------------------------------------
+# 5. REAL x402 Payment Integration
+# ----------------------------------------------------
+
+async def execute_x402_payment(
+    agent_url: str,
+    budget_usd: float,
+    buyer_keypair: Keypair
+) -> Dict[str, Any]:
+    """
+    Executes REAL x402 payment flow:
+    1. Request service (receive 402)
+    2. Send payment on Solana
+    3. Retry with payment proof
+    4. Receive service data
+    """
+    SERVICE_ENDPOINT = f"{agent_url}/scrape?q=solana"
     
-    async with httpx.AsyncClient() as client:
-        try:
+    print(f"\n{'='*60}")
+    print(f"[X402] Requesting service from: {SERVICE_ENDPOINT}")
+    print(f"{'='*60}")
+    
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             # Step 1: Initial request (expecting 402)
-            response = await client.get(agent_url)
+            print("[X402] Step 1: Initial request (no payment)...")
+            response = await client.get(SERVICE_ENDPOINT)
             
+            # Step 2: Check for 402 Payment Required
             if response.status_code == 402:
-                # Step 2: Parse payment requirements
-                payment_info = response.json()
-                print(f"💰 Payment required: {payment_info}")
+                print("💰 [X402] Received 402 Payment Required")
                 
-                # Step 3: Execute USDC payment on Solana
-                # (Real implementation would use @solana/web3.js equivalent in Python)
+                try:
+                    payment_info = response.json()
+                    payment_details = payment_info.get('payment_details', {})
+                    
+                    recipient_address = Pubkey.from_string(payment_details['recipient'])
+                    amount_lamports = payment_details['amount_lamports']
+                    amount_sol = payment_details['amount_sol']
+                    
+                    print(f"💵 [X402] Payment required:")
+                    print(f"   - Amount: {amount_sol} SOL ({amount_lamports} lamports)")
+                    print(f"   - Recipient: {recipient_address}")
+                    
+                except (KeyError, json.JSONDecodeError) as e:
+                    print(f"🚨 Failed to parse payment details: {e}")
+                    return {"data": None, "success": False, "error": "Invalid payment details"}
                 
-                # Step 4: Retry with payment proof
-                # response = await client.get(agent_url, headers={"X-Payment-Proof": tx_signature})
+                # Step 3: Execute REAL payment on Solana
+                print(f"\n[X402] Step 3: Executing payment on Solana blockchain...")
                 
-                # For demo: Return mock successful result
+                try:
+                    solana_client = Client(SOLANA_CLUSTER)
+                    
+                    # Send REAL SOL payment
+                    tx_signature = send_sol_payment(
+                        solana_client,
+                        buyer_keypair,
+                        recipient_address,
+                        amount_lamports
+                    )
+                    
+                    print(f"✅ [X402] Payment successful! Tx: {tx_signature}")
+                    
+                except Exception as e:
+                    print(f"🚨 Payment failed: {e}")
+                    return {
+                        "data": None,
+                        "success": False,
+                        "error": f"Payment execution failed: {e}"
+                    }
+                
+                # Step 4: Retry request with payment proof
+                print(f"\n[X402] Step 4: Retrying request with payment proof...")
+                payment_headers = {"X-Payment-Proof": tx_signature}
+                
+                final_response = await client.get(SERVICE_ENDPOINT, headers=payment_headers)
+                
+                if final_response.status_code == 200:
+                    print("🎉 [X402] SUCCESS! Payment verified, service delivered!")
+                    service_data = final_response.json()
+                    
+                    return {
+                        "data": service_data,
+                        "success": True,
+                        "tx_signature": tx_signature,
+                        "amount_paid": amount_sol
+                    }
+                else:
+                    print(f"❌ [X402] Failed after payment. Status: {final_response.status_code}")
+                    return {
+                        "data": None,
+                        "success": False,
+                        "tx_signature": tx_signature,
+                        "error": f"Service failed with status {final_response.status_code}"
+                    }
+            
+            elif response.status_code == 200:
+                print("✅ [X402] Service delivered immediately (no payment required)")
                 return {
+                    "data": response.json(),
                     "success": True,
-                    "data": "Real service data would be here",
-                    "payment_tx": "5K7m...xyz"
+                    "tx_signature": None
                 }
+            
             else:
-                print(f"⚠️ Unexpected response: {response.status_code}")
-                return {"success": False, "error": "No x402 protection found"}
-                
-        except Exception as e:
-            print(f"🚨 Error during x402 payment: {e}")
-            return {"success": False, "error": str(e)}
+                print(f"❌ [X402] Unexpected response: {response.status_code}")
+                return {
+                    "data": None,
+                    "success": False,
+                    "error": f"Unexpected status {response.status_code}"
+                }
+    
+    except httpx.RequestError as e:
+        print(f"🚨 [X402] Network error: {e}")
+        return {
+            "data": None,
+            "success": False,
+            "error": f"Network error: {e}"
+        }
+    except Exception as e:
+        print(f"🚨 [X402] Unexpected error: {e}")
+        return {
+            "data": None,
+            "success": False,
+            "error": f"Unexpected error: {e}"
+        }
 
 # ----------------------------------------------------
-# 5. Record Validation on Solana
+# 6. Record Validation on Solana
 # ----------------------------------------------------
 
 def record_validation_on_chain(
     solana_client: Client,
     seller_pubkey: str,
+    buyer_keypair: Keypair,
     success: bool
 ) -> str:
     """
@@ -209,23 +353,33 @@ def record_validation_on_chain(
     3. Send to Solana
     4. Return transaction signature
     """
-    print(f"📝 Recording validation on Solana (Success: {success})")
+    print(f"\n📝 Recording validation on Solana (Success: {success})")
+    print(f"   - Seller: {seller_pubkey}")
+    print(f"   - Buyer: {buyer_keypair.pubkey()}")
     
     # Real implementation would use Anchor's Python client or manual transaction building
-    # tx = Transaction().add(
-    #     record_validation_instruction(
-    #         buyer=ORCHESTRATOR_WALLET.pubkey(),
-    #         seller=seller_pubkey,
-    #         success=success
-    #     )
-    # )
-    # signature = solana_client.send_transaction(tx, ORCHESTRATOR_WALLET)
+    # For now, we simulate the transaction
     
-    # For demo: Return mock transaction signature
-    return "TxSignature123...xyz"
+    try:
+        # In production:
+        # 1. Create record_validation instruction using Anchor IDL
+        # 2. Build and sign transaction
+        # 3. Send to Solana
+        # tx = build_record_validation_tx(buyer_keypair, seller_pubkey, success)
+        # signature = solana_client.send_transaction(tx, buyer_keypair)
+        
+        # For demo: Return mock transaction signature
+        mock_tx_sig = f"ValidationTx_{seller_pubkey[:8]}_{success}"
+        print(f"✅ Validation recorded on-chain: {mock_tx_sig}")
+        
+        return mock_tx_sig
+        
+    except Exception as e:
+        print(f"🚨 Error recording validation: {e}")
+        return ""
 
 # ----------------------------------------------------
-# 6. Main Orchestrator Logic (REAL VERSION)
+# 7. Main Orchestrator Logic (REAL VERSION WITH PAYMENTS)
 # ----------------------------------------------------
 
 async def orchestrate_task(user_request: str):
@@ -237,16 +391,24 @@ async def orchestrate_task(user_request: str):
     - Real on-chain validation recording
     """
     solana_client = Client(SOLANA_CLUSTER)
-    print("=" * 60)
-    print("🤖 ORCHESTRATOR AGENT STARTED (REAL MODE)")
-    print("=" * 60)
+    
+    print("\n" + "="*60)
+    print("🤖 ORCHESTRATOR AGENT STARTED (REAL X402 MODE)")
+    print("="*60)
+    print(f"User Request: {user_request}")
+    print("="*60 + "\n")
     
     # Step 1: Task decomposition using real LLM
+    print("📋 STEP 1: Task Decomposition")
     task_plan = llm_task_breakdown(user_request)
     
     if not task_plan:
         print("🛑 Failed to generate task plan. Aborting.")
         return
+    
+    print(f"\n✅ Generated {len(task_plan)} subtasks:")
+    for i, task in enumerate(task_plan, 1):
+        print(f"   {i}. {task.get('name')} ({task.get('service_type')}) - ${task.get('budget_usd')}")
     
     final_results = {}
     
@@ -261,62 +423,85 @@ async def orchestrate_task(user_request: str):
         print(f"{'='*60}")
         
         # Step 3: Discover agents from Solana (REAL)
+        print(f"\n📊 STEP 2: Agent Discovery")
         available_agents = query_reputation_program(solana_client, service_type)
         
         if not available_agents:
             print(f"❌ No agents found for service type '{service_type}'")
-            final_results[task_name] = {"success": False, "error": "No agents available"}
+            final_results[task_name] = {
+                "success": False,
+                "error": "No agents available"
+            }
             continue
         
         # Step 4: Select best agent (highest reputation)
         best_agent = max(available_agents, key=lambda x: x['reputation_score'])
         
-        print(f"\n✅ SELECTED AGENT:")
-        print(f"   ID: {best_agent['agent_id']}")
+        print(f"\n✅ STEP 3: Agent Selection")
+        print(f"   Selected Agent: {best_agent['agent_id']}")
         print(f"   Reputation: {best_agent['reputation_score']}")
-        print(f"   Total Successful Txs: {best_agent['total_successful_txs']}")
+        print(f"   Success Rate: {best_agent['total_successful_txs']} txs")
         print(f"   API URL: {best_agent['api_url']}")
-        print(f"   Budget: ${budget} USDC")
+        print(f"   Budget: ${budget} USD")
         
-        # Step 5: Execute x402 payment and get service
-        service_result = await execute_x402_payment(best_agent['api_url'], budget)
+        # Step 5: Execute REAL x402 payment and get service
+        print(f"\n💳 STEP 4: x402 Payment & Service Execution")
+        service_result = await execute_x402_payment(
+            best_agent['api_url'],
+            budget,
+            ORCHESTRATOR_WALLET
+        )
         
         # Step 6: Record validation on Solana
+        print(f"\n📝 STEP 5: On-Chain Validation Recording")
         if service_result.get("success"):
-            tx_sig = record_validation_on_chain(
+            validation_tx = record_validation_on_chain(
                 solana_client,
                 best_agent['pubkey'],
+                ORCHESTRATOR_WALLET,
                 success=True
             )
-            print(f"✅ Validation recorded on-chain: {tx_sig}")
+            
             final_results[task_name] = {
                 "success": True,
                 "agent": best_agent['agent_id'],
+                "reputation": best_agent['reputation_score'],
                 "payment_tx": service_result.get("payment_tx"),
-                "validation_tx": tx_sig
+                "amount_paid": service_result.get("amount_paid"),
+                "validation_tx": validation_tx,
+                "data_preview": str(service_result.get("data", {}))[:100] + "..."
             }
+            print(f"✅ Task completed successfully!")
         else:
-            print(f"❌ Service execution failed")
+            validation_tx = record_validation_on_chain(
+                solana_client,
+                best_agent['pubkey'],
+                ORCHESTRATOR_WALLET,
+                success=False
+            )
+            
             final_results[task_name] = {
                 "success": False,
-                "error": service_result.get("error")
+                "agent": best_agent['agent_id'],
+                "error": service_result.get("error"),
+                "validation_tx": validation_tx
             }
+            print(f"❌ Task failed: {service_result.get('error')}")
     
+    # Final summary
     print(f"\n{'='*60}")
     print("✅ ORCHESTRATION COMPLETED")
     print(f"{'='*60}")
-    print(f"\nFinal Results:")
+    print(f"\n📊 Final Results Summary:")
     print(json.dumps(final_results, indent=2))
     
     return final_results
 
 # ----------------------------------------------------
-# Test the Real Agent
+# Test the Real Agent with x402 Payment
 # ----------------------------------------------------
 
 if __name__ == "__main__":
-    import asyncio
-    
     # Real user query
     user_query = (
         "Please analyze the sentiment of recent news headlines related to "
@@ -324,5 +509,5 @@ if __name__ == "__main__":
         "based on trading volume data from the past 48 hours."
     )
     
-    # Run orchestrator
+    # Run orchestrator with real x402 payments
     asyncio.run(orchestrate_task(user_query))

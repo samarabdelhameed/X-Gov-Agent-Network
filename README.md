@@ -1,260 +1,504 @@
-# 🚀 X-Gov Agent Network: Decentralized Reputation Protocol for Agents on Solana
+# X-Gov Agent Network
 
-## 💡 Executive Summary
+## Decentralized Reputation Protocol for Autonomous Agents on Solana
 
-**X-Gov Agent Network** is a revolutionary infrastructure project designed to solve the biggest challenges of the **Agent Economy**: **Trust and Instant Payment**.
-
-We present the first agent ecosystem built on a **Trustless Reputation Protocol** on **Solana**, where agents can autonomously purchase services and evaluate their quality using **instant x402 USDC payments**.
-
-This project transforms agents from mere "software functions" into "economic entities with verifiable reputation," opening the door to unstoppable AI value chains of unprecedented complexity.
-
----
-
-## 🎯 Hackathon Tracks Coverage & Target Prizes
-
-This project is designed to achieve top scores in these key tracks:
-
-| Target Track | Description in Project | Approximate Prize |
-|:---|:---|:---|
-| **🥇 Best x402 Agent Application** | **Orchestrator Agent:** An advanced AI agent that uses LLM to break down complex tasks, manage budgets, and pay executors. | **$20,000** |
-| **🥈 Best Trustless Agent** | **Reputation Program:** A smart contract on Solana that stores agent identity and reputation scores, updated through decentralized (on-chain) transactions. | **$10,000** |
-| **🥉 Best x402 API Integration** | **Service Agents:** Protecting specialized API services with **HTTP-402** protocol, implementing instant **agent-to-agent** payments. | **$10,000** |
-| **🏅 Best AgentPay Demo** | **Web UI:** Live demonstration of workflow where the **highest reputation** agent is selected, paid, and success is recorded on-chain. | **$5,000** |
-| **Bonus: Best x402 Dev Tool** | **`xgov-sdk-ts`:** Providing a TypeScript library to facilitate integration of new agents into the X-Gov Reputation network. | **$10,000** |
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF)](https://solana.com)
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange)](https://www.rust-lang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 
 ---
 
-## 🔗 Sponsor Integration
+## Abstract
 
-| Sponsor | Actual Integration in Project |
-|:---|:---|
-| **Solana** | **Core Infrastructure:** **Rust/Anchor** programs to store reputation and identity data in a decentralized manner (on-chain). |
-| **x402 (HTTP-402)** | **Payment Protocol:** The exclusive payment mechanism in the network, used to execute precise **USDC** micropayments between agents instantly. |
+X-Gov Agent Network is a blockchain-based infrastructure for building trustless, autonomous agent economies. The system implements a decentralized reputation protocol on Solana, combined with the x402 HTTP payment standard, enabling agents to autonomously discover, evaluate, and transact with each other based on on-chain reputation scores.
 
----
-
-## 📈 Core Use Case
-
-### Title: **"The Autonomous Financial Analyst Agent"**
-
-**Scenario:**
-
-1. User requests a complex market analysis from the Orchestrator Agent.
-2. The Orchestrator determines the need for **Data Scraping** and **Sentiment Analysis**.
-3. **Trust-Based Discovery:** The Orchestrator communicates with the **Reputation Contract on Solana** and selects the **"Data Scraper Agent"** with the **highest reputation score** (proven quality in previous transactions).
-4. **Atomic Payment:** The Orchestrator pays the Scraper Agent directly via **x402 USDC**.
-5. **Verification & Recording:** After receiving data, the Orchestrator validates data quality, then records a **successful** transaction on the Solana reputation contract, resulting in **increased** reputation for the Scraper Agent.
-
-This ensures that service quality is directly tied to an economic value accumulated on the blockchain.
+This architecture solves two fundamental challenges in agent-to-agent interactions: **trust verification** and **atomic micropayments**, creating a foundation for complex, multi-agent workflows with economic accountability.
 
 ---
 
-## 📐 Architecture Diagram
+## System Architecture
+
+### Core Components
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      User / Developer                            │
+│                         Client Layer                             │
+│                   (Web UI / SDK Consumers)                       │
 └────────────────────────────┬────────────────────────────────────┘
                              │
-                             ▼
-                ┌────────────────────────┐
-                │  Orchestrator Agent    │
-                │   (Python + LLM)       │
-                │  - Task Planning       │
-                │  - Budget Management   │
-                └───────┬────────────────┘
+                ┌────────────┴────────────┐
+                │   Orchestrator Agent    │
+                │   • Task Planning (LLM) │
+                │   • Agent Discovery     │
+                │   • Payment Execution   │
+                └────────┬────────────────┘
+                         │
+         ┌───────────────┼───────────────┐
+         │               │               │
+    ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
+    │Service  │    │Service  │    │Service  │
+    │Agent 1  │    │Agent 2  │    │Agent N  │
+    │(x402)   │    │(x402)   │    │(x402)   │
+    └────┬────┘    └────┬────┘    └────┬────┘
+         │              │              │
+         └──────────────┼──────────────┘
                         │
-        ┌───────────────┼───────────────┐
-        ▼               ▼               ▼
-┌───────────────┐ ┌──────────────┐ ┌──────────────┐
-│ Data Scraper  │ │  Sentiment   │ │   Other      │
-│ Service Agent │ │  Analysis    │ │   Service    │
-│  (Node.js)    │ │  Agent       │ │   Agents     │
-└───────┬───────┘ └──────┬───────┘ └──────┬───────┘
-        │                │                │
-        └────────────────┼────────────────┘
-                         │
-            x402 Payment Protocol (USDC)
-                         │
-                         ▼
-        ┌────────────────────────────────┐
-        │   Solana Blockchain (Devnet)   │
-        │  ┌──────────────────────────┐  │
-        │  │ X-Gov Reputation Program │  │
-        │  │  - AgentProfile          │  │
-        │  │  - ServiceValidation     │  │
-        │  │  - register_agent()      │  │
-        │  │  - record_validation()   │  │
-        │  └──────────────────────────┘  │
-        └────────────────────────────────┘
-                         │
-                         ▼
-                ┌────────────────┐
-                │   Web UI Demo  │
-                │  (React/Vue)   │
-                │  - Live Status │
-                │  - Reputation  │
-                └────────────────┘
+           ┌────────────▼─────────────┐
+           │   Solana Blockchain      │
+           │   • Reputation Program   │
+           │   • Payment Settlement   │
+           │   • Validation Records   │
+           └──────────────────────────┘
 ```
 
-This diagram illustrates the workflow and transaction flow between agents and the smart contract.
+### Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Blockchain** | Solana (Rust/Anchor) | On-chain reputation storage and validation |
+| **Payment Protocol** | x402 (HTTP 402) | Agent-to-agent micropayment standard |
+| **Orchestration** | Python 3.10+ | Task coordination and LLM integration |
+| **Service Agents** | Node.js 18+ | x402-protected API services |
+| **SDK** | TypeScript 5.0+ | Developer integration library |
+| **Frontend** | Next.js 14 + React 18 | Interactive demonstration UI |
 
 ---
 
-## 🛠️ Repository Structure
+## Key Features
+
+### 1. On-Chain Reputation System
+
+The reputation smart contract maintains tamper-proof agent profiles with the following data structure:
+
+```rust
+pub struct AgentProfile {
+    pub owner: Pubkey,
+    pub agent_name: String,
+    pub reputation_score: i32,
+    pub total_transactions: u64,
+    pub successful_transactions: u64,
+    pub service_type: String,
+    pub registration_timestamp: i64,
+}
+```
+
+**Reputation Algorithm:**
+- Initial Score: 100
+- Successful Transaction: +1
+- Failed Transaction: -5
+- All updates recorded on-chain with cryptographic proof
+
+### 2. x402 Payment Integration
+
+Implementation of HTTP 402 Payment Required standard for service protection:
+
+**Flow:**
+1. Client requests service → 402 Response with payment details
+2. Client executes blockchain payment
+3. Client retries with `X-Payment-Proof` header containing transaction signature
+4. Service validates payment on-chain → 200 Response with data
+
+**Features:**
+- Atomic payment verification
+- Blockchain-backed receipts
+- Replay attack prevention via caching
+- Support for SOL and USDC payments
+
+### 3. AI-Powered Orchestration
+
+The orchestrator agent uses OpenAI's GPT-4 for intelligent task decomposition:
+
+```python
+def llm_task_breakdown(user_query: str) -> List[SubTask]:
+    """
+    Decomposes complex user requests into executable subtasks
+    with service type mapping and budget allocation
+    """
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[...],
+        response_format={"type": "json_object"}
+    )
+    return parse_subtasks(response)
+```
+
+**Capabilities:**
+- Natural language task understanding
+- Service requirement identification
+- Budget optimization
+- Multi-step workflow planning
+
+### 4. Developer SDK
+
+TypeScript SDK providing high-level abstractions:
+
+```typescript
+import { XGovClient } from '@xgov/sdk-ts';
+
+const client = new XGovClient(connection, programId);
+
+// Query agents by service type
+const agents = await client.getAgentsByServiceType('data_scraper');
+
+// Select best agent by reputation
+const bestAgent = await client.findBestAgent('data_scraper');
+
+// Record validation after service completion
+await client.recordValidation(sellerPubkey, success, keypair);
+```
+
+---
+
+## Repository Structure
 
 ```
 X-Gov-Agent-Network/
-├── 📂 programs/               # Core Trust Protocol (Solana Rust Programs)
-│   ├── Cargo.toml            # Rust dependencies (Anchor 0.29.0)
-│   └── src/
-│       └── lib.rs            # Reputation smart contract
 │
-├── 📂 agents/                 # Orchestrator & Service Agents (Python/Node.js)
+├── programs/                    # Solana Smart Contracts
+│   ├── Cargo.toml              # Anchor framework dependencies
+│   └── src/
+│       └── lib.rs              # Reputation program implementation
+│
+├── agents/                      # Autonomous Agent Implementations
 │   ├── orchestrator-agent/
-│   │   └── main.py           # AI-powered task coordinator
+│   │   ├── main.py            # Orchestration logic + LLM integration
+│   │   └── requirements.txt   # Python dependencies
+│   │
 │   └── service-agents/
 │       └── data-analyst-agent/
-│           └── server.js     # x402-protected API service
+│           ├── server.js      # x402-protected Express API
+│           └── package.json
 │
-├── 📂 client-libs/            # xgov-sdk-ts (Developer Tooling)
+├── client-libs/                 # Developer Tools
 │   └── xgov-sdk-ts/
-│       └── src/
-│           └── index.ts      # TypeScript SDK for integration
+│       ├── src/
+│       │   └── index.ts       # TypeScript SDK
+│       └── tsconfig.json
 │
-├── 📂 web-ui/                 # Live AgentPay Demo (Frontend)
-│   └── src/
-│       └── index.html        # Interactive reputation dashboard
+├── web-ui/                      # Demo Frontend
+│   ├── src/
+│   │   ├── app/               # Next.js app directory
+│   │   └── components/        # React components
+│   ├── package.json
+│   └── tailwind.config.js
 │
-└── 📂 docs/                   # Documentation & Media
-    ├── ARCHITECTURE.md       # Technical deep dive
-    ├── DEPLOYMENT.md         # Deployment guide
-    └── MEDIA/                # Screenshots & diagrams
+├── docs/                        # Technical Documentation
+│   ├── ARCHITECTURE.md         # System design deep-dive
+│   ├── DEPLOYMENT.md          # Production deployment guide
+│   └── X402_INTEGRATION.md    # Payment protocol specification
+│
+├── RUN_PROJECT.md              # Quick start guide
+└── INTEGRATION_GUIDE.md        # End-to-end integration tutorial
 ```
 
 ---
 
-## 🔗 Setup & Deployment
+## Installation & Setup
 
 ### Prerequisites
 
-- **Rust & Anchor CLI** (v0.29.0+)
-- **Solana CLI** (v1.18+)
-- **Node.js** (v18+)
-- **Python** (v3.10+)
+- **Rust** 1.70+ with Anchor CLI 0.29.0
+- **Solana CLI** 1.18+
+- **Node.js** 18+ with npm
+- **Python** 3.10+
+- **Git**
 
-### 1. Deploy Solana Program
+### 1. Clone Repository
 
 ```bash
-# Build the Solana program
-cd programs
-anchor build
-
-# Deploy to devnet
-anchor deploy --provider.cluster devnet
-
-# Update the program ID in lib.rs with the deployed address
+git clone https://github.com/samarabdelhameed/X-Gov-Agent-Network.git
+cd X-Gov-Agent-Network
 ```
 
-### 2. Setup Agents
+### 2. Deploy Solana Program
 
 ```bash
-# Install Orchestrator dependencies
+cd programs
+anchor build
+anchor deploy --provider.cluster devnet
+
+# Update program ID in:
+# - programs/src/lib.rs (declare_id! macro)
+# - agents/orchestrator-agent/.env (REPUTATION_PROGRAM_ID)
+# - agents/service-agents/data-analyst-agent/.env (REPUTATION_PROGRAM_ID)
+```
+
+### 3. Configure Service Agent
+
+```bash
+cd agents/service-agents/data-analyst-agent
+npm install
+
+# Create .env file
+cat > .env << EOF
+PORT=3001
+AGENT_NAME=DataAnalystAgent
+SERVICE_TYPE=data_scraper
+SOLANA_RPC_URL=https://api.devnet.solana.com
+AGENT_WALLET_PRIVATE_KEY=<your_base58_private_key>
+PAYMENT_REQUIRED_LAMPORTS=5000000
+REPUTATION_PROGRAM_ID=<deployed_program_id>
+EOF
+
+# Start service agent
+npm start
+```
+
+### 4. Configure Orchestrator
+
+```bash
 cd agents/orchestrator-agent
 pip install -r requirements.txt
 
-# Install Service Agent dependencies
-cd ../service-agents/data-analyst-agent
-npm install
-```
+# Create .env file
+cat > .env << EOF
+OPENAI_API_KEY=<your_openai_api_key>
+SOLANA_RPC_URL=https://api.devnet.solana.com
+REPUTATION_PROGRAM_ID=<deployed_program_id>
+ORCHESTRATOR_WALLET_SECRET=<your_wallet_secret>
+EOF
 
-### 3. Run Agents
-
-```bash
-# Terminal 1: Start Service Agents
-cd agents/service-agents/data-analyst-agent
-npm start
-
-# Terminal 2: Run Orchestrator
-cd agents/orchestrator-agent
+# Run orchestrator
 python main.py
 ```
 
-### 4. Launch Web UI
+### 5. Launch Web UI
 
 ```bash
-cd web-ui/src
-# Open index.html in browser or serve with:
-python -m http.server 8000
+cd web-ui
+npm install
+npm run dev
+
+# Open browser: http://localhost:3000
 ```
 
-**(Note:** Detailed deployment steps are provided in `docs/DEPLOYMENT.md`.)**
+---
+
+## Usage Example
+
+### Complete Transaction Flow
+
+```python
+# 1. User submits natural language query
+query = "Analyze Solana network sentiment from recent news"
+
+# 2. Orchestrator decomposes task using LLM
+subtasks = decompose_task(query)
+# Output: [{"service_type": "data_scraper", "budget": 5.0}]
+
+# 3. Query Solana for reputation data
+agents = get_agents_by_type(solana_client, "data_scraper")
+best_agent = max(agents, key=lambda x: x.reputation_score)
+
+# 4. Initiate x402 payment
+response = requests.get(best_agent.url + "/scrape?q=solana")
+# Response: 402 Payment Required
+
+# 5. Execute blockchain payment
+tx_sig = send_payment(
+    solana_client,
+    orchestrator_wallet,
+    best_agent.wallet,
+    lamports=5000000
+)
+
+# 6. Retry with payment proof
+response = requests.get(
+    best_agent.url + "/scrape?q=solana",
+    headers={"X-Payment-Proof": tx_sig}
+)
+# Response: 200 OK with data
+
+# 7. Record validation on-chain
+record_validation(
+    solana_client,
+    seller_pubkey=best_agent.pubkey,
+    buyer_keypair=orchestrator_wallet,
+    success=True
+)
+# Agent reputation: 125 → 126
+```
 
 ---
 
-## 🌟 Key Features
+## Security Considerations
 
-### ✅ **Trustless Reputation System**
-- Each agent has a tamper-proof on-chain identity
-- Reputation updates automatically based on transaction success/failure
-- Complete transparency in performance records
+### Smart Contract Security
 
-### ✅ **Agent-to-Agent Economy**
-- Precise and instant USDC micropayments via x402
-- No intermediaries or bank accounts needed
-- True autonomous agent economy
+- **PDA-based accounts**: All agent profiles use Program Derived Addresses for deterministic account generation
+- **Signer validation**: All state-changing operations require valid keypair signatures
+- **Overflow protection**: Reputation score uses checked arithmetic operations
+- **Account ownership**: Strict validation of account ownership before updates
 
-### ✅ **AI-Powered Orchestration**
-- Intelligent breakdown of complex tasks
-- Reputation-based selection of best agent
-- Autonomous budget management
+### Payment Security
 
-### ✅ **Developer-Friendly SDK**
-- Easy-to-use TypeScript library
-- Quick integration with new agents
-- Comprehensive documentation and examples
+- **On-chain verification**: All payments verified via Solana RPC before service delivery
+- **Replay prevention**: Transaction signatures cached with 1-hour TTL
+- **Amount validation**: Recipient and amount verified against on-chain transaction data
+- **Timeout handling**: Payment proofs expire after 3600 seconds
 
----
+### API Security
 
-## 🎥 Demo Video
-
-🎬 [Watch the Demo Video Here](docs/MEDIA/)
-
-The video demonstrates:
-- Registering a new agent on Solana
-- x402 payment between agents
-- Real-time on-chain reputation updates
+- **Rate limiting**: Service agents implement request throttling
+- **Input validation**: All user inputs sanitized and validated
+- **Error handling**: Graceful degradation without exposing internal state
+- **CORS configuration**: Restricted origins in production deployments
 
 ---
 
-## 🏆 Why This Project Deserves to Win
+## Performance Characteristics
 
-1. **🎯 Comprehensive Track Coverage**: Uniquely combines Solana + x402 + AI Agents
-2. **💎 True Innovation**: First decentralized reputation protocol for agents
-3. **🔧 Practical Application**: Real-world, scalable use case
-4. **📚 Code Quality**: Professional standards in programming and documentation
-5. **🚀 Future Impact**: Paves the way for a global agent economy
+| Metric | Value |
+|--------|-------|
+| **On-chain Validation Latency** | ~2-3 seconds (Solana block time) |
+| **x402 Payment Verification** | ~400ms (RPC call + validation) |
+| **Orchestrator Task Planning** | ~1-2 seconds (OpenAI API) |
+| **Service Agent Response** | ~200-500ms (after payment) |
+| **Total End-to-End Flow** | ~5-10 seconds |
+
+**Scalability:**
+- Solana TPS: 65,000 transactions/second theoretical, 2,000+ practical
+- Service agents: Horizontally scalable via load balancer
+- Reputation lookups: O(n) where n = agents per service type (typically < 100)
 
 ---
 
-## 📞 Contact & Support
+## Testing
+
+### Run Unit Tests
+
+```bash
+# Solana program tests
+cd programs
+anchor test
+
+# Service agent tests
+cd agents/service-agents/data-analyst-agent
+npm test
+
+# SDK tests
+cd client-libs/xgov-sdk-ts
+npm test
+```
+
+### Integration Tests
+
+```bash
+# Full system test
+./test_x402_flow.sh
+
+# Setup verification
+./test_setup.sh
+```
+
+---
+
+## Hackathon Track Alignment
+
+| Track | Implementation | Evidence |
+|-------|---------------|-----------|
+| **Best x402 Agent Application** | Orchestrator with LLM-powered task planning, reputation-based agent selection, and x402 payment execution | `agents/orchestrator-agent/main.py` |
+| **Best Trustless Agent** | Solana-based reputation program with on-chain validation recording and PDA account architecture | `programs/src/lib.rs` |
+| **Best x402 API Integration** | Production-ready service agent with HTTP 402 implementation and blockchain payment verification | `agents/service-agents/data-analyst-agent/server.js` |
+| **Best AgentPay Demo** | Interactive Next.js UI with real-time timeline, Recharts visualizations, and Solana Explorer integration | `web-ui/src/` |
+| **Best x402 Dev Tool** | TypeScript SDK with comprehensive API for reputation queries, payment execution, and validation recording | `client-libs/xgov-sdk-ts/src/index.ts` |
+
+---
+
+## Roadmap
+
+### Phase 1: Core Infrastructure (Completed)
+- [x] Solana reputation smart contract
+- [x] x402 payment protocol implementation
+- [x] Orchestrator agent with LLM integration
+- [x] Service agent reference implementation
+- [x] TypeScript SDK
+- [x] Web UI demo
+
+### Phase 2: Production Hardening (Q2 2025)
+- [ ] Mainnet deployment
+- [ ] Multi-token support (SOL, USDC, BONK)
+- [ ] Advanced reputation algorithms (decay, stakes)
+- [ ] Service agent marketplace
+- [ ] SDK plugins for popular frameworks
+
+### Phase 3: Ecosystem Growth (Q3-Q4 2025)
+- [ ] Agent registry and discovery protocol
+- [ ] Governance mechanism for protocol upgrades
+- [ ] Cross-chain bridge for reputation portability
+- [ ] Enterprise agent management dashboard
+- [ ] Developer grants program
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+**Code Standards:**
+- Rust: Follow official Rust style guide, run `cargo fmt` and `cargo clippy`
+- TypeScript: ESLint + Prettier configuration provided
+- Python: PEP 8 compliance, type hints required
+- Documentation: All public APIs must include docstrings/JSDoc
+
+---
+
+## Documentation
+
+- **[Architecture Guide](docs/ARCHITECTURE.md)**: System design and technical decisions
+- **[Deployment Guide](docs/DEPLOYMENT.md)**: Production deployment instructions
+- **[x402 Integration](docs/X402_INTEGRATION.md)**: Payment protocol specification
+- **[Integration Guide](INTEGRATION_GUIDE.md)**: End-to-end integration tutorial
+- **[Run Project](RUN_PROJECT.md)**: Quick start for local development
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- **Solana Foundation** for blockchain infrastructure
+- **x402 Protocol Team** for payment standard specification
+- **Anchor Framework** for Solana program development tools
+- **OpenAI** for LLM API access
+
+---
+
+## Contact
 
 - **GitHub**: [github.com/samarabdelhameed/X-Gov-Agent-Network](https://github.com/samarabdelhameed/X-Gov-Agent-Network)
-- **Twitter**: [@XGovNetwork](#)
-- **Discord**: [Join our community](#)
+- **Project Lead**: Samar Abdelhameed
+- **Email**: contact@xgov.network
+- **Discord**: [Join Community](#)
 
 ---
 
-## 📄 License
+## Citation
 
-MIT License - See [LICENSE](LICENSE) file for details.
+If you use this work in academic research, please cite:
+
+```bibtex
+@software{xgov_agent_network,
+  title = {X-Gov Agent Network: Decentralized Reputation Protocol for Autonomous Agents},
+  author = {Abdelhameed, Samar},
+  year = {2025},
+  url = {https://github.com/samarabdelhameed/X-Gov-Agent-Network}
+}
+```
 
 ---
 
-<div align="center">
+**Built for Solana x x402 Hackathon 2025**
 
-**Built with ❤️ for Solana x x402 Hackathon 2025**
-
-*By Agents, For Agents, With Agents*
-
-</div>
+*Empowering autonomous agents with trustless reputation and atomic payments*

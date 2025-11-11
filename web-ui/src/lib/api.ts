@@ -1,6 +1,6 @@
 // Real API calls - NO MOCKS!
 
-const ORCHESTRATOR_API = process.env.NEXT_PUBLIC_ORCHESTRATOR_URL || 'http://localhost:5000';
+const ORCHESTRATOR_API = process.env.NEXT_PUBLIC_ORCHESTRATOR_URL || 'http://localhost:5001';
 const SERVICE_AGENT_URL = process.env.NEXT_PUBLIC_SERVICE_AGENT_URL || 'http://localhost:3001';
 
 export interface ServiceAgentInfo {

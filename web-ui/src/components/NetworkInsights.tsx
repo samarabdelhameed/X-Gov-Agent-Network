@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { TrendingUp, Users, DollarSign, Activity } from 'lucide-react'
+import Link from 'next/link'
 import { fetchAgentProfiles, getTransactionCount, getNetworkStats } from '@/lib/solana'
 import { fetchServiceAgentInfo, checkServiceAgentHealth } from '@/lib/api'
 
@@ -117,20 +118,21 @@ export default function NetworkInsights() {
     }))
   }
 
-  if (loading) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="card-glow flex items-center justify-center h-96"
-      >
-        <div className="text-center">
-          <div className="spinner mx-auto mb-4" />
-          <p className="text-gray-400">Loading real data from Solana...</p>
-        </div>
-      </motion.div>
-    )
-  }
+  // Don't show loading spinner for too long - show data even if 0
+  // if (loading) {
+  //   return (
+  //     <motion.div
+  //       initial={{ opacity: 0 }}
+  //       animate={{ opacity: 1 }}
+  //       className="card-glow flex items-center justify-center h-96"
+  //     >
+  //       <div className="text-center">
+  //         <div className="spinner mx-auto mb-4" />
+  //         <p className="text-gray-400">Loading real data from Solana...</p>
+  //       </div>
+  //     </motion.div>
+  //   )
+  // }
 
   return (
     <motion.div
@@ -140,9 +142,16 @@ export default function NetworkInsights() {
     >
       {/* Header */}
       <div className="card-glow">
-        <div className="flex items-center gap-3 mb-6">
-          <Activity className="w-6 h-6 text-neon-green" />
-          <h2 className="text-2xl font-bold text-neon-green">Network Insights (REAL DATA)</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Activity className="w-6 h-6 text-neon-green" />
+            <h2 className="text-2xl font-bold text-neon-green">Network Insights (REAL DATA)</h2>
+          </div>
+          <Link href="/agents">
+            <button className="text-xs btn-secondary py-1 px-3">
+              View All Agents →
+            </button>
+          </Link>
         </div>
 
         {/* Stats Cards - REAL DATA */}

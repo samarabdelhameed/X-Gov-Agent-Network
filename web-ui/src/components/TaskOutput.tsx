@@ -11,18 +11,73 @@ type TaskOutputProps = {
 export default function TaskOutput({ result }: TaskOutputProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="card-glow"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="card-glow relative overflow-hidden"
     >
-      <div className="flex items-center gap-3 mb-6">
-        {result.success ? (
-          <CheckCircle className="w-6 h-6 text-neon-green" />
-        ) : (
-          <XCircle className="w-6 h-6 text-red-500" />
-        )}
-        <h2 className="text-2xl font-bold text-neon-green">Final Task Result</h2>
+      {/* Success Animation Overlay */}
+      {result.success && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 2, times: [0, 0.5, 1] }}
+          className="absolute inset-0 bg-gradient-to-r from-neon-green/20 via-neon-green/40 to-neon-green/20 pointer-events-none"
+        />
+      )}
+
+      {/* Confetti Effect for Success */}
+      {result.success && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ 
+                x: Math.random() * 100 + '%',
+                y: -20,
+                opacity: 1,
+                scale: Math.random() * 0.5 + 0.5
+              }}
+              animate={{ 
+                y: '120%',
+                opacity: 0,
+                rotate: Math.random() * 360
+              }}
+              transition={{ 
+                duration: Math.random() * 2 + 2,
+                delay: Math.random() * 0.5,
+                ease: 'easeOut'
+              }}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                background: `hsl(${Math.random() * 60 + 100}, 100%, ${Math.random() * 30 + 50}%)`,
+                boxShadow: '0 0 10px rgba(0,255,65,0.5)'
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center gap-3 mb-6 relative z-10">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+        >
+          {result.success ? (
+            <CheckCircle className="w-8 h-8 text-neon-green drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]" />
+          ) : (
+            <XCircle className="w-8 h-8 text-red-500" />
+          )}
+        </motion.div>
+        <motion.h2 
+          className="text-2xl font-bold text-neon-green text-glow"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          {result.success ? '🎉 Task Completed Successfully!' : 'Task Failed'}
+        </motion.h2>
       </div>
 
       {result.success ? (

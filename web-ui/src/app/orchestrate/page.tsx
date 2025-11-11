@@ -51,7 +51,7 @@ export default function OrchestratePagePage() {
 
     try {
       // Call orchestrator API (assumes orchestrator is running)
-      const response = await fetch('http://localhost:5000/api/orchestrate', {
+      const response = await fetch('http://localhost:5001/api/orchestrate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task: taskDescription }),
@@ -76,29 +76,23 @@ export default function OrchestratePagePage() {
     } catch (error) {
       console.error('Orchestration error:', error)
       
-      // For demo: Simulate successful orchestration with mock data
-      await simulateOrchestration(initialSteps, {
-        agent: 'DataScraper_Pro_v1',
-        reputation: 125,
-        paymentTx: '5K7mNpQ8xYz...',
-        validationTx: 'ValidationTx_abc123...',
-        data: {
-          sentiment: 'Positive',
-          confidence: 0.87,
-          analysis: 'Solana network shows strong bullish sentiment with increasing adoption.',
-        },
+      // NO MOCK DATA! Show real error
+      setSteps(prev => {
+        const errorSteps = [...prev]
+        const firstPending = errorSteps.findIndex(s => s.status === 'pending' || s.status === 'active')
+        if (firstPending !== -1) {
+          errorSteps[firstPending] = {
+            ...errorSteps[firstPending],
+            status: 'error',
+            details: `Orchestration failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please ensure Orchestrator API is running on port 5001.`
+          }
+        }
+        return errorSteps
       })
       
       setTaskResult({
-        success: true,
-        agent: 'DataScraper_Pro_v1',
-        paymentTx: '5K7mNpQ8xYz...',
-        validationTx: 'ValidationTx_abc123...',
-        data: {
-          sentiment: 'Positive',
-          confidence: 87,
-          analysis: 'Solana network shows strong bullish sentiment with increasing adoption and developer activity.',
-        },
+        success: false,
+        error: `Failed to connect to Orchestrator API. Please ensure it's running on http://localhost:5001. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
       })
     }
 

@@ -1,0 +1,19 @@
+[package]
+name = "x_gov_reputation"
+version = "0.1.0"
+description = "Solana program for the X-Gov Agent Reputation Protocol"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-times = []
+cpi = ["anchor-lang/cpi"]
+default = []
+
+[dependencies]
+anchor-lang = { version = "0.29.0", features = ["init-if-needed"] }
+

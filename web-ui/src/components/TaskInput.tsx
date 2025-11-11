@@ -25,7 +25,7 @@ export default function TaskInput({ onSubmit, isOrchestrating }: TaskInputProps)
     }
   }
 
-  const useExample = (example: string) => {
+  const selectExample = (example: string) => {
     setTask(example)
   }
 
@@ -57,7 +57,7 @@ export default function TaskInput({ onSubmit, isOrchestrating }: TaskInputProps)
             <button
               key={index}
               type="button"
-              onClick={() => useExample(example)}
+              onClick={() => selectExample(example)}
               disabled={isOrchestrating}
               className="text-xs px-3 py-1 rounded-full bg-neon-green/10 text-neon-green hover:bg-neon-green/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >

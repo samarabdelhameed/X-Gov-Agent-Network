@@ -1,11 +1,13 @@
-// Real Solana Integration - NO MOCKS!
+// Real Solana Integration - Using REAL SDK (NO MOCKS!)
 
-import { Connection, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import XGovReputationSDK from '../../../client-libs/xgov-sdk-ts/src/index';
 
-const SOLANA_RPC = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
-const REPUTATION_PROGRAM_ID = process.env.NEXT_PUBLIC_REPUTATION_PROGRAM_ID || 'Fg6PaFpoGXkPABqLTSsAPoV2K1tTq2tL2R1fV9EFSGjM';
-
-export const connection = new Connection(SOLANA_RPC, 'confirmed');
+// Initialize REAL SDK
+const sdk = new XGovReputationSDK(
+  new PublicKey(process.env.NEXT_PUBLIC_REPUTATION_PROGRAM_ID || 'Fg6PaFpoGXkPABqLTSsAPoV2K1tTq2tL2R1fV9EFSGjM'),
+  'devnet'
+);
 
 export interface AgentProfile {
   pubkey: string;
@@ -15,59 +17,57 @@ export interface AgentProfile {
   owner: string;
 }
 
-// Fetch REAL agent profiles from Solana
+// Fetch REAL agent profiles using SDK
 export async function fetchAgentProfiles(): Promise<AgentProfile[]> {
   try {
-    const programId = new PublicKey(REPUTATION_PROGRAM_ID);
+    console.log('[UI] Fetching REAL agent profiles from Solana via SDK...');
     
-    // Get all program accounts (real on-chain data)
-    const accounts = await connection.getProgramAccounts(programId);
+    // Call REAL SDK function
+    const agents = await sdk.getAllAgentProfiles();
     
-    // Parse account data (would need actual Anchor IDL in production)
-    // For now, return structure that matches our program
-    const agents: AgentProfile[] = accounts.map((account, index) => ({
-      pubkey: account.pubkey.toString(),
-      name: `Agent_${index + 1}`,
-      reputation_score: 100 + Math.floor(Math.random() * 30), // Would decode from account.data
-      total_successful_txs: Math.floor(Math.random() * 50),
-      owner: account.account.owner.toString(),
+    console.log(`[UI] Received ${agents.length} agents from blockchain`);
+    
+    // Transform to UI format
+    return agents.map(agent => ({
+      pubkey: agent.pubkey.toString(),
+      name: agent.name,
+      reputation_score: agent.reputationScore,
+      total_successful_txs: agent.totalSuccessfulTxs,
+      owner: agent.owner.toString(),
     }));
     
-    return agents;
   } catch (error) {
-    console.error('Error fetching Solana data:', error);
-    // Fallback to empty array if program not deployed yet
+    console.error('[UI] Error fetching agent profiles:', error);
     return [];
   }
 }
 
-// Get REAL transaction count
+// Get REAL transaction count using SDK
 export async function getTransactionCount(): Promise<number> {
   try {
-    const programId = new PublicKey(REPUTATION_PROGRAM_ID);
-    const signatures = await connection.getSignaturesForAddress(programId, { limit: 1000 });
-    return signatures.length;
+    console.log('[UI] Getting REAL transaction count via SDK...');
+    const count = await sdk.getTransactionCount();
+    console.log(`[UI] Total transactions: ${count}`);
+    return count;
   } catch (error) {
-    console.error('Error getting tx count:', error);
+    console.error('[UI] Error getting tx count:', error);
     return 0;
   }
 }
 
-// Get REAL network stats
+// Get REAL network stats using SDK
 export async function getNetworkStats() {
   try {
-    const slot = await connection.getSlot();
-    const blockTime = await connection.getBlockTime(slot);
-    const version = await connection.getVersion();
-    
-    return {
-      currentSlot: slot,
-      blockTime: blockTime ? new Date(blockTime * 1000).toISOString() : null,
-      solanaVersion: version['solana-core'],
-    };
+    console.log('[UI] Getting REAL network stats via SDK...');
+    const stats = await sdk.getNetworkStats();
+    console.log('[UI] Network stats:', stats);
+    return stats;
   } catch (error) {
-    console.error('Error getting network stats:', error);
+    console.error('[UI] Error getting network stats:', error);
     return null;
   }
 }
+
+// Export SDK instance for direct use
+export { sdk };
 

@@ -1,0 +1,31 @@
+{
+  "name": "@xgov/sdk-ts",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for interacting with the X-Gov Reputation Protocol on Solana - REAL DATA ONLY",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "keywords": [
+    "solana",
+    "x402",
+    "agent",
+    "reputation",
+    "blockchain",
+    "sdk"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.87.6",
+    "@coral-xyz/anchor": "^0.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5"
+  }
+}

@@ -125,6 +125,7 @@ open http://localhost:3000
 ### **Option 2: Manual Start (Step by Step) 🔧**
 
 #### **Prerequisites:**
+
 - Node.js 18+
 - Python 3.10+
 - npm
@@ -151,12 +152,14 @@ cd ../..
 #### **Step 2: Start Services (3 Terminals)**
 
 **Terminal 1 - Service Agent (Port 3001):**
+
 ```bash
 cd agents/service-agents/data-analyst-agent
 npm start
 ```
 
 **Expected Output:**
+
 ```
 ============================================================
 🚀 DataAnalystAgent Service Agent Started
@@ -169,12 +172,14 @@ npm start
 ```
 
 **Terminal 2 - Orchestrator API (Port 5001):**
+
 ```bash
 cd agents/orchestrator-agent
 python3 api_server.py
 ```
 
 **Expected Output:**
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║  🤖  X-Gov Orchestrator Agent - API Server                  ║
@@ -184,12 +189,14 @@ python3 api_server.py
 ```
 
 **Terminal 3 - Web UI (Port 3000):**
+
 ```bash
 cd web-ui
 npm run dev
 ```
 
 **Expected Output:**
+
 ```
 ▲ Next.js 14.2.0
 - Local:        http://localhost:3000
@@ -199,6 +206,7 @@ npm run dev
 #### **Step 3: Access the Application**
 
 Open your browser and visit:
+
 - **Home:** http://localhost:3000
 - **Dashboard:** http://localhost:3000/orchestrate
 - **Agents:** http://localhost:3000/agents
@@ -232,7 +240,7 @@ curl http://localhost:3001/scrape?q=test
 curl -X POST http://localhost:5001/api/orchestrate \
   -H "Content-Type: application/json" \
   -d '{"task": "Analyze Solana network"}'
-  
+
 # Expected: Success with real Solana transaction signature
 ```
 
@@ -241,6 +249,7 @@ curl -X POST http://localhost:5001/api/orchestrate \
 ### **Troubleshooting 🔧**
 
 **Port Already in Use?**
+
 ```bash
 # Kill processes on specific ports
 lsof -ti:3001 | xargs kill -9  # Service Agent
@@ -253,6 +262,7 @@ pkill -f "python.*api_server"
 ```
 
 **Dependencies Issues?**
+
 ```bash
 # Reinstall Service Agent
 cd agents/service-agents/data-analyst-agent

@@ -9,6 +9,8 @@
 
 ### 🌐 **Live Demo:** [https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app/)
 
+### 🎥 **Demo Video:** [Watch on YouTube](https://www.youtube.com/watch?v=8RsFFmsssEY&t=15s)
+
 ---
 
 ## 🔗 **Quick Links - All Verified & Working!**

@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "buildCommand": "cd web-ui && npm install && npm run build",
+  "outputDirectory": "web-ui/.next",
+  "installCommand": "cd web-ui && npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "env": {
+    "NEXT_PUBLIC_SOLANA_RPC_URL": "https://api.devnet.solana.com",
+    "NEXT_PUBLIC_REPUTATION_PROGRAM_ID": "Fg6PaFpoGXkPABqLTSsAPoV2K1tTq2tL2R1fV9EFSGjM",
+    "NEXT_PUBLIC_SERVICE_AGENT_URL": "http://localhost:3001",
+    "NEXT_PUBLIC_ORCHESTRATOR_URL": "http://localhost:5001"
+  }
+}
+

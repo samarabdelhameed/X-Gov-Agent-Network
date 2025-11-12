@@ -13,6 +13,9 @@ from openai import OpenAI
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 
+# Import Professional Agent Manager
+from agent_manager import agent_manager
+
 # Load environment variables
 load_dotenv()
 
@@ -35,13 +38,80 @@ except Exception as e:
     LLM_AVAILABLE = False
     print(f"⚠️ OpenAI API key not found - Using simple task decomposition: {e}")
 
-# Orchestrator wallet (load from environment in production)
-# For demo: generate a new one if not provided
-ORCHESTRATOR_WALLET = Keypair()
-print(f"💼 Orchestrator Wallet: {ORCHESTRATOR_WALLET.pubkey()}")
+# Orchestrator wallet (load from saved wallet or generate new)
+def load_or_create_wallet():
+    """Load wallet from wallet.json or create new one"""
+    wallet_file = "wallet.json"
+    
+    try:
+        if os.path.exists(wallet_file):
+            print(f"📂 Loading wallet from {wallet_file}...")
+            with open(wallet_file, 'r') as f:
+                wallet_data = json.load(f)
+                secret_key_bytes = bytes(wallet_data['secret_key'])
+                wallet = Keypair.from_bytes(secret_key_bytes)
+                print(f"✅ Loaded existing wallet: {wallet.pubkey()}")
+                return wallet
+    except Exception as e:
+        print(f"⚠️ Could not load wallet: {e}")
+    
+    # Create new wallet if loading failed
+    print("🔄 Creating new wallet...")
+    wallet = Keypair()
+    print(f"💼 New Wallet: {wallet.pubkey()}")
+    
+    # Save it for next time
+    try:
+        wallet_data = {
+            "pubkey": str(wallet.pubkey()),
+            "secret_key": list(bytes(wallet))
+        }
+        with open(wallet_file, "w") as f:
+            json.dump(wallet_data, f)
+        print(f"💾 Wallet saved to {wallet_file}")
+    except Exception as e:
+        print(f"⚠️ Could not save wallet: {e}")
+    
+    return wallet
+
+ORCHESTRATOR_WALLET = load_or_create_wallet()
 
 # Constants
 LAMPORTS_PER_SOL = 1_000_000_000
+
+# Auto-fund wallet if balance is low (Devnet only)
+def ensure_wallet_funded(wallet: Keypair, min_balance_sol: float = 0.1):
+    """Ensure the wallet has enough SOL for transactions"""
+    try:
+        solana_client = Client(SOLANA_CLUSTER)
+        balance_resp = solana_client.get_balance(wallet.pubkey())
+        balance_sol = balance_resp.value / LAMPORTS_PER_SOL
+        
+        print(f"💰 Current balance: {balance_sol} SOL")
+        
+        if balance_sol < min_balance_sol:
+            print(f"⚠️ Low balance! Requesting airdrop from Devnet faucet...")
+            try:
+                airdrop_resp = solana_client.request_airdrop(wallet.pubkey(), int(2 * LAMPORTS_PER_SOL))
+                print(f"✅ Airdrop requested: {airdrop_resp.value}")
+                
+                # Wait for confirmation
+                import time
+                time.sleep(3)
+                
+                # Check new balance
+                new_balance_resp = solana_client.get_balance(wallet.pubkey())
+                new_balance_sol = new_balance_resp.value / LAMPORTS_PER_SOL
+                print(f"💰 New balance: {new_balance_sol} SOL")
+            except Exception as e:
+                print(f"❌ Airdrop failed: {e}")
+                print(f"💡 Please manually fund wallet: {wallet.pubkey()}")
+                print(f"   Visit: https://faucet.solana.com/")
+    except Exception as e:
+        print(f"⚠️ Could not check wallet balance: {e}")
+
+# Fund wallet on startup
+ensure_wallet_funded(ORCHESTRATOR_WALLET)
 
 # ----------------------------------------------------
 # 2. Real LLM Function for Task Breakdown
@@ -166,31 +236,43 @@ def query_reputation_program(solana_client: Client, service_type: str) -> List[D
                 print(f"⚠️ Could not decode account {account_info.pubkey}: {decode_error}")
                 continue
         
-        # If NO agents registered on-chain yet, check if we have local service agent running
+        # Check Professional Agent Registry first
+        print(f"📋 Checking Professional Agent Registry...")
+        registry_agents = agent_manager.get_agents_by_service_type(service_type)
+        
+        if registry_agents:
+            print(f"✅ Found {len(registry_agents)} agent(s) in registry")
+            all_agents.extend(registry_agents)
+        
+        # If still no agents, check local service agent
         if len(all_agents) == 0:
-            print(f"⚠️ No agents registered on-chain for '{service_type}' yet.")
-            print(f"💡 Checking if local service agent is available...")
+            print(f"⚠️ No agents found. Checking local service agent...")
             
-            # Try to connect to local service agent (the REAL one we built)
             import httpx
             try:
                 response = httpx.get("http://localhost:3001/info", timeout=2.0)
                 if response.status_code == 200:
                     agent_info = response.json()
-                    print(f"✅ Found REAL local service agent: {agent_info.get('agent_id')}")
+                    print(f"✅ Found local service agent: {agent_info.get('agent_id')}")
                     
-                    # Use the REAL local agent (not mock - this is our actual running agent!)
                     if agent_info.get('service_type') == service_type:
-                        all_agents.append({
+                        local_agent = {
                             "agent_id": agent_info.get('agent_id', 'DataAnalystAgent'),
                             "pubkey": agent_info.get('wallet', 'Local'),
-                            "reputation_score": 100,  # Starting reputation for unregistered agent
+                            "wallet": agent_info.get('wallet'),
+                            "reputation_score": 100,
                             "total_successful_txs": 0,
                             "api_url": "http://localhost:3001",
                             "service_type": agent_info.get('service_type'),
-                            "owner": agent_info.get('wallet', 'Local')
-                        })
-                        print(f"✅ Using REAL local service agent for orchestration")
+                            "owner": agent_info.get('wallet', 'Local'),
+                            "status": "active"
+                        }
+                        
+                        # Auto-register to professional registry
+                        if agent_manager.register_agent(local_agent):
+                            print(f"✅ Auto-registered agent to professional registry")
+                        
+                        all_agents.append(local_agent)
             except Exception as local_check:
                 print(f"⚠️ No local service agent running: {local_check}")
         
@@ -264,23 +346,40 @@ async def execute_x402_payment_and_service(
                         "data": None
                     }
                 
-                # Step 3: Execute REAL Solana payment
+                # Step 3: Execute REAL Solana payment (NO DEMO MODE!)
                 print(f"\n[X402] Step 3: Executing payment on Solana...")
-                try:
-                    # First, check if buyer has enough SOL (request airdrop on devnet)
+                
+                # Check wallet balance first
+                balance_resp = solana_client.get_balance(buyer_keypair.pubkey())
+                balance = balance_resp.value
+                print(f"💰 Wallet balance: {balance / LAMPORTS_PER_SOL} SOL")
+                
+                # If balance is too low, try airdrop once
+                if balance < required_lamports:
+                    print(f"⚠️ Insufficient balance. Trying airdrop...")
                     try:
                         print("[X402] Requesting devnet airdrop for buyer wallet...")
                         airdrop_sig = solana_client.request_airdrop(
                             buyer_keypair.pubkey(),
-                            2 * LAMPORTS_PER_SOL  # Request 2 SOL for testing
+                            2 * LAMPORTS_PER_SOL
                         )
                         print(f"   Airdrop signature: {airdrop_sig.value}")
+                        await asyncio.sleep(3)
                         
-                        # Wait for airdrop confirmation
-                        await asyncio.sleep(2)
+                        # Check balance again
+                        balance_resp = solana_client.get_balance(buyer_keypair.pubkey())
+                        balance = balance_resp.value
+                        print(f"💰 New balance: {balance / LAMPORTS_PER_SOL} SOL")
+                        
+                        if balance < required_lamports:
+                            # NO DEMO MODE - just fail
+                            raise Exception(f"Insufficient balance: {balance / LAMPORTS_PER_SOL} SOL < {required_sol} SOL. Please fund wallet manually at https://faucet.solana.com/")
                     except Exception as e:
-                        print(f"   ⚠️ Airdrop failed (may already have balance): {e}")
-                    
+                        print(f"❌ Cannot proceed: {e}")
+                        raise
+                
+                # Execute REAL payment (NO FALLBACK)
+                try:
                     # Create transfer instruction
                     transfer_ix = transfer(
                         TransferParams(
@@ -294,7 +393,7 @@ async def execute_x402_payment_and_service(
                     recent_blockhash_resp = solana_client.get_latest_blockhash()
                     recent_blockhash = recent_blockhash_resp.value.blockhash
                     
-                    # Create transaction using legacy Transaction (compatible with solana-py)
+                    # Create transaction
                     from solana.transaction import Transaction
                     tx = Transaction()
                     tx.add(transfer_ix)
@@ -318,9 +417,15 @@ async def execute_x402_payment_and_service(
                     # Wait for confirmation
                     print("[X402] Waiting for transaction confirmation...")
                     await asyncio.sleep(3)
-                    
-                    # Step 4: Retry request WITH payment proof
-                    print(f"\n[X402] Step 4: Retrying request with payment proof...")
+                except Exception as payment_error:
+                    print(f"❌ Real payment failed: {payment_error}")
+                    # NO DEMO MODE - just fail
+                    raise Exception(f"Payment failed: {payment_error}")
+                
+                # Step 4: Retry request WITH payment proof
+                print(f"\n[X402] Step 4: Retrying request with payment proof...")
+                
+                try:
                     payment_headers = {
                         "X-Payment-Proof": tx_sig_str
                     }
@@ -354,12 +459,12 @@ async def execute_x402_payment_and_service(
                         }
                         
                 except Exception as e:
-                    print(f"🚨 [X402] Payment execution failed: {e}")
+                    print(f"🚨 [X402] Service call failed: {e}")
                     import traceback
                     traceback.print_exc()
                     return {
                         "success": False,
-                        "error": f"Payment execution failed: {str(e)}",
+                        "error": f"Service call failed: {str(e)}",
                         "data": None
                     }
                     
@@ -415,15 +520,29 @@ def record_validation_on_chain(
     # 2. Create transaction with instruction
     # 3. Sign with buyer keypair
     # 4. Send to Solana
-    # 5. Return transaction signature
+    # 5. Update Professional Agent Registry
+    print(f"📝 Updating professional agent registry...")
     
-    # For demo: Return mock transaction signature
-    # In production: Use Anchor Python client or build instruction manually
+    # Find agent by pubkey/wallet
+    all_agents = agent_manager.get_all_agents()
+    agent_id = None
     
-    mock_tx_signature = f"ValidationTx_{seller_pubkey[:8]}_{success}"
-    print(f"✅ Validation recorded (mock): {mock_tx_signature}")
+    for agent in all_agents:
+        if agent.get('pubkey') == seller_pubkey or agent.get('wallet') == seller_pubkey:
+            agent_id = agent.get('agent_id')
+            break
     
-    return mock_tx_signature
+    if agent_id:
+        agent_manager.update_agent_reputation(agent_id, success)
+        print(f"✅ Updated reputation for {agent_id}")
+    else:
+        print(f"⚠️ Agent not found in registry: {seller_pubkey[:8]}")
+    
+    # Return validation ID (not blockchain tx since program not deployed)
+    validation_id = f"Validation_{seller_pubkey[:8]}_{success}_{int(asyncio.get_event_loop().time())}"
+    print(f"✅ Validation recorded: {validation_id}")
+    
+    return validation_id
 
 # ----------------------------------------------------
 # 6. Main Orchestrator Logic (COMPLETE WITH REAL X402)
@@ -509,7 +628,7 @@ async def orchestrate_task(user_request: str):
         if payment_result["success"]:
             validation_tx = record_validation_on_chain(
                 solana_client,
-                best_agent['pubkey'],
+                best_agent.get('pubkey') or best_agent.get('wallet'),
                 success=True,
                 buyer_keypair=ORCHESTRATOR_WALLET
             )
@@ -527,7 +646,7 @@ async def orchestrate_task(user_request: str):
         else:
             validation_tx = record_validation_on_chain(
                 solana_client,
-                best_agent['pubkey'],
+                best_agent.get('pubkey') or best_agent.get('wallet'),
                 success=False,
                 buyer_keypair=ORCHESTRATOR_WALLET
             )

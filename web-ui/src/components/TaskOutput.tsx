@@ -121,21 +121,12 @@ export default function TaskOutput({ result }: TaskOutputProps) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-neon-green/10 border border-neon-green/30 rounded-lg text-neon-green hover:bg-neon-green/20 transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
-                View Payment Transaction
+                View Payment Transaction on Solana Explorer
               </a>
             )}
 
-            {result.validationTx && (
-              <a
-                href={`https://explorer.solana.com/tx/${result.validationTx}?cluster=devnet`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-neon-green/10 border border-neon-green/30 rounded-lg text-neon-green hover:bg-neon-green/20 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" />
-                View Validation Transaction
-              </a>
-            )}
+            {/* Validation Transaction hidden - it's a mock/placeholder, not a real blockchain transaction */}
+            {/* Real reputation updates would require on-chain program calls */}
           </div>
         </div>
       ) : (

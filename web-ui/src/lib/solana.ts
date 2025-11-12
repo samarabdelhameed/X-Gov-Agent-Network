@@ -28,17 +28,16 @@ export async function fetchAgentProfiles(): Promise<AgentProfile[]> {
     
     console.log(`[UI] Received ${accounts.length} program accounts from blockchain`);
     
-    // Transform to UI format
-    // In production, you would decode the account data using Anchor IDL
-    const agents = accounts.map((account, index) => ({
-      pubkey: account.pubkey.toString(),
-      name: `Agent_${account.pubkey.toString().slice(0, 8)}`,
-      reputation_score: 100 + index * 10, // Would come from decoded data
-      total_successful_txs: index * 5, // Would come from decoded data
-      owner: account.account.owner.toString(),
-    }));
+    // Transform to UI format - REAL data only, no mock calculations
+    // Note: Account data needs proper Anchor IDL decoding for real reputation scores
+    // For now, return empty if no proper decoding available
+    if (accounts.length === 0) {
+      return [];
+    }
     
-    return agents;
+    // Only return agents if we can properly decode them
+    // Otherwise return empty array (no mock data!)
+    return [];
     
   } catch (error) {
     console.error('[UI] Error fetching agent profiles:', error);
@@ -55,11 +54,9 @@ export async function getTransactionCount(): Promise<number> {
     // Query program accounts
     const accounts = await connection.getProgramAccounts(REPUTATION_PROGRAM_ID);
     
-    // In production, sum up all transactions from decoded account data
-    const count = accounts.length * 10; // Placeholder calculation
-    
-    console.log(`[UI] Total transactions: ${count}`);
-    return count;
+    // NO MOCK DATA - return 0 until we can properly decode account data
+    console.log(`[UI] Total program accounts: ${accounts.length}`);
+    return 0;
   } catch (error) {
     console.error('[UI] Error getting tx count:', error);
     return 0;
@@ -73,13 +70,14 @@ export async function getNetworkStats() {
     
     const accounts = await connection.getProgramAccounts(REPUTATION_PROGRAM_ID);
     
+    // NO MOCK DATA - all zeros until we can properly decode account data
     const stats = {
-      totalAgents: accounts.length,
-      totalTransactions: accounts.length * 10,
-      averageReputation: 105,
+      totalAgents: 0, // Would need proper account decoding
+      totalTransactions: 0, // Would need proper account decoding
+      averageReputation: 0, // Would need proper account decoding
     };
     
-    console.log('[UI] Network stats:', stats);
+    console.log('[UI] Network stats (raw accounts):', accounts.length);
     return stats;
   } catch (error) {
     console.error('[UI] Error getting network stats:', error);

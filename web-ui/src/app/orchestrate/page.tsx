@@ -63,8 +63,13 @@ export default function OrchestratePagePage() {
 
       const result = await response.json()
       
-      // Simulate step-by-step progression with real data
-      await simulateOrchestration(initialSteps, result)
+      // NO SIMULATION - Just mark all steps as completed instantly with real result
+      const completedSteps = initialSteps.map((step, index) => ({
+        ...step,
+        status: 'completed' as const,
+        timestamp: Date.now() + (index * 100), // Stagger timestamps slightly
+      }))
+      setSteps(completedSteps)
       
       setTaskResult({
         success: true,
@@ -99,63 +104,7 @@ export default function OrchestratePagePage() {
     setIsOrchestrating(false)
   }
 
-  const simulateOrchestration = async (initialSteps: OrchestrationStep[], result: any) => {
-    // Step 1: Task Decomposition
-    await updateStep(0, 'active', 'Analyzing task with LLM...')
-    await delay(1500)
-    await updateStep(0, 'completed', 'Task broken into 2 subtasks')
-
-    // Step 2: Query Solana
-    await updateStep(1, 'active', 'Connecting to Solana devnet...')
-    await delay(1000)
-    await updateStep(1, 'completed', 'Found 3 registered agents')
-
-    // Step 3: Select Agent
-    await updateStep(2, 'active', 'Evaluating agent reputation...')
-    await delay(800)
-    await updateStep(2, 'completed', `Selected: ${result.agent || 'DataScraper_Pro_v1'} (Score: ${result.reputation || 125})`)
-
-    // Step 4: Initiate Payment
-    await updateStep(3, 'active', 'Preparing x402 payment...')
-    await delay(1000)
-    await updateStep(3, 'completed', 'Payment request sent (0.005 SOL)')
-
-    // Step 5: Payment Verification
-    await updateStep(4, 'active', 'Waiting for blockchain confirmation...')
-    await delay(2000)
-    await updateStep(4, 'completed', 'Transaction confirmed on Solana')
-
-    // Step 6: Service Received
-    await updateStep(5, 'active', 'Receiving service data...')
-    await delay(1500)
-    await updateStep(5, 'completed', 'Service data received successfully', result.paymentTx)
-
-    // Step 7: Record Validation
-    await updateStep(6, 'active', 'Updating agent reputation...')
-    await delay(1000)
-    await updateStep(6, 'completed', 'Reputation +1 recorded on-chain', result.validationTx)
-
-    // Step 8: Complete
-    await updateStep(7, 'active')
-    await delay(500)
-    await updateStep(7, 'completed', 'All tasks completed successfully!')
-  }
-
-  const updateStep = async (index: number, status: OrchestrationStep['status'], details?: string, txSignature?: string) => {
-    setSteps(prev => {
-      const newSteps = [...prev]
-      newSteps[index] = {
-        ...newSteps[index],
-        status,
-        details,
-        txSignature,
-        timestamp: Date.now(),
-      }
-      return newSteps
-    })
-  }
-
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+  // NO SIMULATION FUNCTIONS - removed all mock/fake progression
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-dark-bg via-dark-bg to-dark-card">

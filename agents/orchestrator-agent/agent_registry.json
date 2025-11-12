@@ -1,0 +1,33 @@
+{
+  "agents": [
+    {
+      "agent_id": "DataAnalystAgent",
+      "name": "Data Analyst Agent",
+      "service_type": "data_scraper",
+      "wallet": "5WSkYn7KmRUDWwasJwyXdCAxA2f7H94ifDoCAF7chyX",
+      "api_url": "http://localhost:3001",
+      "reputation_score": 101,
+      "total_successful_txs": 1,
+      "total_failed_txs": 0,
+      "registered_at": "2025-11-12T10:00:00Z",
+      "status": "active",
+      "description": "Professional data scraping and analysis service with x402 payment integration",
+      "pricing": {
+        "per_request_sol": 0.005,
+        "per_request_usdc": 0.01
+      },
+      "capabilities": [
+        "web_scraping",
+        "data_analysis",
+        "price_tracking",
+        "market_insights"
+      ],
+      "last_updated": "2025-11-12T10:37:31.994046Z"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2025-11-12T10:37:31.994061Z",
+    "total_agents": 1
+  }
+}

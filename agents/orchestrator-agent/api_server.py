@@ -108,29 +108,43 @@ def orchestrate():
 @app.route('/api/agents', methods=['GET'])
 def list_agents():
     """
-    List all registered agents from Solana reputation program
+    List all registered agents from Professional Agent Registry
     """
     try:
-        from solana.rpc.api import Client
-        from main import query_reputation_program, SOLANA_CLUSTER
+        from agent_manager import agent_manager
         
-        solana_client = Client(SOLANA_CLUSTER)
+        # Get all agents from professional registry
+        all_agents = agent_manager.get_all_agents()
         
-        # Get all service types
-        service_types = ['data_scraper', 'text_analyst', 'image_processor', 'code_executor']
-        all_agents = []
-        
-        for service_type in service_types:
-            agents = query_reputation_program(solana_client, service_type)
-            all_agents.extend(agents)
-        
-        # Remove duplicates
-        unique_agents = {agent['agent_id']: agent for agent in all_agents}.values()
+        # Get registry stats
+        stats = agent_manager.get_registry_stats()
         
         return jsonify({
             'success': True,
-            'total': len(unique_agents),
-            'agents': list(unique_agents)
+            'total': len(all_agents),
+            'agents': all_agents,
+            'stats': stats
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/agents/stats', methods=['GET'])
+def get_agent_stats():
+    """
+    Get agent registry statistics
+    """
+    try:
+        from agent_manager import agent_manager
+        
+        stats = agent_manager.get_registry_stats()
+        
+        return jsonify({
+            'success': True,
+            'stats': stats
         })
         
     except Exception as e:

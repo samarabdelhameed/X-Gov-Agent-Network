@@ -255,37 +255,57 @@ export default function AgentsPage() {
                   <div>
                     <div className="text-xs text-gray-500">Wallet Address</div>
                     <div className="text-sm text-gray-300 font-mono truncate">
-                      {agent.pubkey}
+                      {agent.pubkey || agent.owner || 'N/A'}
                     </div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-500">API Endpoint</div>
                     <div className="text-sm text-gray-300 font-mono truncate">
-                      {agent.api_url}
+                      {agent.api_url || 'N/A'}
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <a
-                    href={`https://explorer.solana.com/address/${agent.pubkey}?cluster=devnet`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 btn-secondary text-xs justify-center"
-                  >
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    View on Explorer
-                  </a>
-                  <a
-                    href={`${agent.api_url}/info`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 btn-primary text-xs justify-center"
-                  >
-                    <Activity className="w-3 h-3 mr-1" />
-                    Check Status
-                  </a>
+                  {(agent.pubkey || agent.owner) ? (
+                    <a
+                      href={`https://explorer.solana.com/address/${agent.pubkey || agent.owner}?cluster=devnet`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 btn-secondary text-xs justify-center"
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      View on Explorer
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      className="flex-1 btn-secondary text-xs justify-center opacity-50 cursor-not-allowed"
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      No Address
+                    </button>
+                  )}
+                  {agent.api_url ? (
+                    <a
+                      href={`${agent.api_url}/info`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 btn-primary text-xs justify-center"
+                    >
+                      <Activity className="w-3 h-3 mr-1" />
+                      Check Status
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      className="flex-1 btn-primary text-xs justify-center opacity-50 cursor-not-allowed"
+                    >
+                      <Activity className="w-3 h-3 mr-1" />
+                      No API
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}

@@ -102,14 +102,16 @@
 
 ---
 
-## 🚀 **Quick Start**
+## 🚀 **How to Run the Project**
+
+### **Option 1: Automatic Start (Recommended) ⚡**
 
 ```bash
 # Clone the repository
 git clone https://github.com/samarabdelhameed/X-Gov-Agent-Network
 cd X-Gov-Agent-Network
 
-# Start all services
+# Start all services automatically
 ./START_ALL.sh
 
 # Open browser
@@ -117,6 +119,155 @@ open http://localhost:3000
 ```
 
 **⏱️ Ready in 30 seconds!**
+
+---
+
+### **Option 2: Manual Start (Step by Step) 🔧**
+
+#### **Prerequisites:**
+- Node.js 18+
+- Python 3.10+
+- npm
+
+#### **Step 1: Install Dependencies**
+
+```bash
+# Service Agent dependencies
+cd agents/service-agents/data-analyst-agent
+npm install
+cd ../../..
+
+# Web UI dependencies
+cd web-ui
+npm install
+cd ..
+
+# Orchestrator dependencies
+cd agents/orchestrator-agent
+pip3 install -r requirements.txt
+cd ../..
+```
+
+#### **Step 2: Start Services (3 Terminals)**
+
+**Terminal 1 - Service Agent (Port 3001):**
+```bash
+cd agents/service-agents/data-analyst-agent
+npm start
+```
+
+**Expected Output:**
+```
+============================================================
+🚀 DataAnalystAgent Service Agent Started
+============================================================
+📡 Port: 3001
+💰 Price: 0.005 SOL per request
+🔒 Protection: x402 Payment Required
+✅ Ready to accept payments and serve data!
+============================================================
+```
+
+**Terminal 2 - Orchestrator API (Port 5001):**
+```bash
+cd agents/orchestrator-agent
+python3 api_server.py
+```
+
+**Expected Output:**
+```
+╔══════════════════════════════════════════════════════════════╗
+║  🤖  X-Gov Orchestrator Agent - API Server                  ║
+║  Port: 5001                                                  ║
+║  Mode: PRODUCTION (Real x402 + Real Solana)                 ║
+╚══════════════════════════════════════════════════════════════╝
+```
+
+**Terminal 3 - Web UI (Port 3000):**
+```bash
+cd web-ui
+npm run dev
+```
+
+**Expected Output:**
+```
+▲ Next.js 14.2.0
+- Local:        http://localhost:3000
+✓ Ready in 3s
+```
+
+#### **Step 3: Access the Application**
+
+Open your browser and visit:
+- **Home:** http://localhost:3000
+- **Dashboard:** http://localhost:3000/orchestrate
+- **Agents:** http://localhost:3000/agents
+
+---
+
+### **Step 4: Test the Integration 🧪**
+
+#### **Test 1: Verify Services are Running**
+
+```bash
+# Check Service Agent
+curl http://localhost:3001/health
+# Expected: {"status": "healthy"}
+
+# Check Orchestrator
+curl http://localhost:5001/health
+# Expected: {"status": "healthy"}
+```
+
+#### **Test 2: Test x402 Protection**
+
+```bash
+curl http://localhost:3001/scrape?q=test
+# Expected: HTTP 402 Payment Required with payment details
+```
+
+#### **Test 3: Run Complete Orchestration**
+
+```bash
+curl -X POST http://localhost:5001/api/orchestrate \
+  -H "Content-Type: application/json" \
+  -d '{"task": "Analyze Solana network"}'
+  
+# Expected: Success with real Solana transaction signature
+```
+
+---
+
+### **Troubleshooting 🔧**
+
+**Port Already in Use?**
+```bash
+# Kill processes on specific ports
+lsof -ti:3001 | xargs kill -9  # Service Agent
+lsof -ti:5001 | xargs kill -9  # Orchestrator
+lsof -ti:3000 | xargs kill -9  # Web UI
+
+# Or kill all
+killall node
+pkill -f "python.*api_server"
+```
+
+**Dependencies Issues?**
+```bash
+# Reinstall Service Agent
+cd agents/service-agents/data-analyst-agent
+rm -rf node_modules package-lock.json
+npm install
+
+# Reinstall Web UI
+cd web-ui
+rm -rf node_modules package-lock.json .next
+npm install
+
+# Reinstall Orchestrator
+cd agents/orchestrator-agent
+pip3 install --upgrade -r requirements.txt
+```
 
 ---
 
@@ -320,200 +471,53 @@ X-Gov-Agent-Network/
 
 ### Prerequisites
 
-- **Rust** 1.70+ with Anchor CLI 0.29.0
-- **Solana CLI** 1.18+
-- **Node.js** 18+ with npm
-- **Python** 3.10+
-- **Git**
+- Node.js 18+, Python 3.10+, Rust 1.70+
+- Solana CLI & Anchor CLI
 
-### 1. Clone Repository
+### Quick Start
 
 ```bash
 git clone https://github.com/samarabdelhameed/X-Gov-Agent-Network.git
 cd X-Gov-Agent-Network
+./START_ALL.sh
 ```
 
-### 2. Deploy Solana Program
+**Visit:** http://localhost:3000
 
-```bash
-cd programs
-anchor build
-anchor deploy --provider.cluster devnet
-
-# Update program ID in:
-# - programs/src/lib.rs (declare_id! macro)
-# - agents/orchestrator-agent/.env (REPUTATION_PROGRAM_ID)
-# - agents/service-agents/data-analyst-agent/.env (REPUTATION_PROGRAM_ID)
-```
-
-### 3. Configure Service Agent
-
-```bash
-cd agents/service-agents/data-analyst-agent
-npm install
-
-# Create .env file
-cat > .env << EOF
-PORT=3001
-AGENT_NAME=DataAnalystAgent
-SERVICE_TYPE=data_scraper
-SOLANA_RPC_URL=https://api.devnet.solana.com
-AGENT_WALLET_PRIVATE_KEY=<your_base58_private_key>
-PAYMENT_REQUIRED_LAMPORTS=5000000
-REPUTATION_PROGRAM_ID=<deployed_program_id>
-EOF
-
-# Start service agent
-npm start
-```
-
-### 4. Configure Orchestrator
-
-```bash
-cd agents/orchestrator-agent
-pip install -r requirements.txt
-
-# Create .env file
-cat > .env << EOF
-OPENAI_API_KEY=<your_openai_api_key>
-SOLANA_RPC_URL=https://api.devnet.solana.com
-REPUTATION_PROGRAM_ID=<deployed_program_id>
-ORCHESTRATOR_WALLET_SECRET=<your_wallet_secret>
-EOF
-
-# Run orchestrator
-python main.py
-```
-
-### 5. Launch Web UI
-
-```bash
-cd web-ui
-npm install
-npm run dev
-
-# Open browser: http://localhost:3000
-```
+For detailed setup, see [Deployment Guide](docs/DEPLOYMENT.md)
 
 ---
 
 ## Usage Example
 
-### Complete Transaction Flow
-
 ```python
-# 1. User submits natural language query
-query = "Analyze Solana network sentiment from recent news"
-
-# 2. Orchestrator decomposes task using LLM
-subtasks = decompose_task(query)
-# Output: [{"service_type": "data_scraper", "budget": 5.0}]
-
-# 3. Query Solana for reputation data
-agents = get_agents_by_type(solana_client, "data_scraper")
-best_agent = max(agents, key=lambda x: x.reputation_score)
-
-# 4. Initiate x402 payment
-response = requests.get(best_agent.url + "/scrape?q=solana")
-# Response: 402 Payment Required
-
-# 5. Execute blockchain payment
-tx_sig = send_payment(
-    solana_client,
-    orchestrator_wallet,
-    best_agent.wallet,
-    lamports=5000000
-)
-
-# 6. Retry with payment proof
-response = requests.get(
-    best_agent.url + "/scrape?q=solana",
-    headers={"X-Payment-Proof": tx_sig}
-)
-# Response: 200 OK with data
-
-# 7. Record validation on-chain
-record_validation(
-    solana_client,
-    seller_pubkey=best_agent.pubkey,
-    buyer_keypair=orchestrator_wallet,
-    success=True
-)
-# Agent reputation: 125 → 126
+# 1. User query → LLM decomposes → Finds agents on Solana
+# 2. Orchestrator selects best agent by reputation
+# 3. Initiates x402 payment → Solana transaction (0.005 SOL)
+# 4. Service agent verifies payment → Delivers data
+# 5. Records validation on-chain → Updates reputation
 ```
+
+**Full example:** See [x402 Integration Guide](docs/X402_INTEGRATION.md)
 
 ---
 
-## Security Considerations
+## Security & Performance
 
-### Smart Contract Security
+### Security
 
-- **PDA-based accounts**: All agent profiles use Program Derived Addresses for deterministic account generation
-- **Signer validation**: All state-changing operations require valid keypair signatures
-- **Overflow protection**: Reputation score uses checked arithmetic operations
-- **Account ownership**: Strict validation of account ownership before updates
+- ✅ PDA-based accounts with signer validation
+- ✅ On-chain payment verification before service delivery
+- ✅ Replay attack prevention (signature caching)
+- ✅ Rate limiting and input validation
 
-### Payment Security
+### Performance
 
-- **On-chain verification**: All payments verified via Solana RPC before service delivery
-- **Replay prevention**: Transaction signatures cached with 1-hour TTL
-- **Amount validation**: Recipient and amount verified against on-chain transaction data
-- **Timeout handling**: Payment proofs expire after 3600 seconds
+- End-to-end orchestration: ~5-10 seconds
+- Payment verification: ~400ms
+- Solana block time: ~2-3 seconds
 
-### API Security
-
-- **Rate limiting**: Service agents implement request throttling
-- **Input validation**: All user inputs sanitized and validated
-- **Error handling**: Graceful degradation without exposing internal state
-- **CORS configuration**: Restricted origins in production deployments
-
----
-
-## Performance Characteristics
-
-| Metric                          | Value                            |
-| ------------------------------- | -------------------------------- |
-| **On-chain Validation Latency** | ~2-3 seconds (Solana block time) |
-| **x402 Payment Verification**   | ~400ms (RPC call + validation)   |
-| **Orchestrator Task Planning**  | ~1-2 seconds (OpenAI API)        |
-| **Service Agent Response**      | ~200-500ms (after payment)       |
-| **Total End-to-End Flow**       | ~5-10 seconds                    |
-
-**Scalability:**
-
-- Solana TPS: 65,000 transactions/second theoretical, 2,000+ practical
-- Service agents: Horizontally scalable via load balancer
-- Reputation lookups: O(n) where n = agents per service type (typically < 100)
-
----
-
-## Testing
-
-### Run Unit Tests
-
-```bash
-# Solana program tests
-cd programs
-anchor test
-
-# Service agent tests
-cd agents/service-agents/data-analyst-agent
-npm test
-
-# SDK tests
-cd client-libs/xgov-sdk-ts
-npm test
-```
-
-### Integration Tests
-
-```bash
-# Full system test
-./test_x402_flow.sh
-
-# Setup verification
-./test_setup.sh
-```
+For details, see [Architecture Guide](docs/ARCHITECTURE.md)
 
 ---
 
@@ -526,54 +530,6 @@ npm test
 | **Best x402 API Integration**   | Production-ready service agent with HTTP 402 implementation and blockchain payment verification           | `agents/service-agents/data-analyst-agent/server.js` |
 | **Best AgentPay Demo**          | Interactive Next.js UI with real-time timeline, Recharts visualizations, and Solana Explorer integration  | `web-ui/src/`                                        |
 | **Best x402 Dev Tool**          | TypeScript SDK with comprehensive API for reputation queries, payment execution, and validation recording | `client-libs/xgov-sdk-ts/src/index.ts`               |
-
----
-
-## Roadmap
-
-### Phase 1: Core Infrastructure (Completed)
-
-- [x] Solana reputation smart contract
-- [x] x402 payment protocol implementation
-- [x] Orchestrator agent with LLM integration
-- [x] Service agent reference implementation
-- [x] TypeScript SDK
-- [x] Web UI demo
-
-### Phase 2: Production Hardening (Q2 2025)
-
-- [ ] Mainnet deployment
-- [ ] Multi-token support (SOL, USDC, BONK)
-- [ ] Advanced reputation algorithms (decay, stakes)
-- [ ] Service agent marketplace
-- [ ] SDK plugins for popular frameworks
-
-### Phase 3: Ecosystem Growth (Q3-Q4 2025)
-
-- [ ] Agent registry and discovery protocol
-- [ ] Governance mechanism for protocol upgrades
-- [ ] Cross-chain bridge for reputation portability
-- [ ] Enterprise agent management dashboard
-- [ ] Developer grants program
-
----
-
-## Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-**Code Standards:**
-
-- Rust: Follow official Rust style guide, run `cargo fmt` and `cargo clippy`
-- TypeScript: ESLint + Prettier configuration provided
-- Python: PEP 8 compliance, type hints required
-- Documentation: All public APIs must include docstrings/JSDoc
 
 ---
 
@@ -617,43 +573,18 @@ All transactions can be verified on Solana Explorer:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - See [LICENSE](LICENSE) file for details.
 
 ---
 
-## Acknowledgments
+## Contact & Links
 
-- **Solana Foundation** for blockchain infrastructure
-- **x402 Protocol Team** for payment standard specification
-- **Anchor Framework** for Solana program development tools
-- **OpenAI** for LLM API access
-
----
-
-## Contact
-
-- **GitHub**: [github.com/samarabdelhameed/X-Gov-Agent-Network](https://github.com/samarabdelhameed/X-Gov-Agent-Network)
-- **Project Lead**: Samar Abdelhameed
-- **Email**: contact@xgov.network
-- **Discord**: [Join Community](#)
+- **GitHub:** [samarabdelhameed/X-Gov-Agent-Network](https://github.com/samarabdelhameed/X-Gov-Agent-Network)
+- **Live Demo:** [web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app)
+- **Demo Video:** [YouTube](https://www.youtube.com/watch?v=8RsFFmsssEY&t=15s)
 
 ---
 
-## Citation
+**Built for Solana × x402 Hackathon 2025** 🏆
 
-If you use this work in academic research, please cite:
-
-```bibtex
-@software{xgov_agent_network,
-  title = {X-Gov Agent Network: Decentralized Reputation Protocol for Autonomous Agents},
-  author = {Abdelhameed, Samar},
-  year = {2025},
-  url = {https://github.com/samarabdelhameed/X-Gov-Agent-Network}
-}
-```
-
----
-
-**Built for Solana x x402 Hackathon 2025**
-
-_Empowering autonomous agents with trustless reputation and atomic payments_
+_Empowering autonomous agents with trustless reputation and atomic payments on Solana blockchain_

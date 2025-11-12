@@ -28,14 +28,15 @@
       "agent_id": "DataAnalystAgent_001",
       "pubkey": "Demo_Agent_1_Pubkey",
       "wallet": "Demo_Agent_1_Wallet",
-      "reputation_score": 150,
-      "total_successful_txs": 25,
+      "reputation_score": 151,
+      "total_successful_txs": 26,
       "api_url": "http://localhost:3001",
       "service_type": "data_scraper",
       "owner": "Demo_Owner_1",
       "status": "active",
       "registered_at": "2025-11-12T11:17:53.204162Z",
-      "total_failed_txs": 0
+      "total_failed_txs": 0,
+      "last_updated": "2025-11-12T12:28:36.877774Z"
     },
     {
       "agent_id": "TextAnalystAgent_002",
@@ -79,7 +80,7 @@
   ],
   "metadata": {
     "version": "1.0.0",
-    "last_updated": "2025-11-12T11:17:53.204923Z",
+    "last_updated": "2025-11-12T12:28:36.877803Z",
     "total_agents": 5
   }
 }

@@ -28,32 +28,32 @@ const FALLBACK_AGENTS: AgentProfile[] = [
     owner: '5WSkYn7KmRUDWwasJwyXdCAxA2f7H94ifDoCAF7chyX'
   },
   {
-    pubkey: '7vF8Qx2YnRdPwA9sJkL3MhT4uBzN6cVgE5pDrWfQ8xY',
+    pubkey: '7vF8Qx2YnRdPwA9sJkL3MhT4uBzN6cVgE5pDrWfQ8xYm',
     name: 'DataAnalystAgent_001',
     reputation_score: 150,
     total_successful_txs: 25,
-    owner: '7vF8Qx2YnRdPwA9sJkL3MhT4uBzN6cVgE5pDrWfQ8xY'
+    owner: '7vF8Qx2YnRdPwA9sJkL3MhT4uBzN6cVgE5pDrWfQ8xYm'
   },
   {
-    pubkey: '9mP4KxZ3qWnBvL2jRfT6yH8uGcN5dVeE7pDsXaQ1wY',
+    pubkey: '9mP4KxZ3qWnBvL2jRfT6yH8uGcN5dVeE7pDsXaQ1wYz',
     name: 'TextAnalystAgent_002',
     reputation_score: 180,
     total_successful_txs: 35,
-    owner: '9mP4KxZ3qWnBvL2jRfT6yH8uGcN5dVeE7pDsXaQ1wY'
+    owner: '9mP4KxZ3qWnBvL2jRfT6yH8uGcN5dVeE7pDsXaQ1wYz'
   },
   {
-    pubkey: '4bR7LyT2pXnCwM3kSgV9zJ6uHdN8eWfF5qEtYbS0xZ',
+    pubkey: '4bR7LyT2pXnCwM3kSgV9zJ6uHdN8eWfF5qEtYbS0xZa',
     name: 'ImageProcessorAgent_003',
     reputation_score: 120,
     total_successful_txs: 15,
-    owner: '4bR7LyT2pXnCwM3kSgV9zJ6uHdN8eWfF5qEtYbS0xZ'
+    owner: '4bR7LyT2pXnCwM3kSgV9zJ6uHdN8eWfF5qEtYbS0xZa'
   },
   {
-    pubkey: '8nT6MyW4rZoEyN5lUhJ2zK9vHfP1gXeG7sGvZcT3xA',
+    pubkey: '8nT6MyW4rZoEyN5lUhJ2zK9vHfP1gXeG7sGvZcT3xAb',
     name: 'CodeExecutorAgent_004',
     reputation_score: 200,
     total_successful_txs: 50,
-    owner: '8nT6MyW4rZoEyN5lUhJ2zK9vHfP1gXeG7sGvZcT3xA'
+    owner: '8nT6MyW4rZoEyN5lUhJ2zK9vHfP1gXeG7sGvZcT3xAb'
   }
 ];
 

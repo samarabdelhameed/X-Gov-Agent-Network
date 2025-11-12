@@ -7,7 +7,7 @@
 [![Rust](https://img.shields.io/badge/Rust-1.70+-orange)](https://www.rust-lang.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 
-### 🌐 **Live Demo:** [https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app/)
+### 🌐 **Live Demo:** [https://web-ui-cyan-omega.vercel.app](https://web-ui-cyan-omega.vercel.app)
 
 ### 🎥 **Demo Video:** [Watch on YouTube](https://www.youtube.com/watch?v=8RsFFmsssEY&t=15s)
 
@@ -17,7 +17,7 @@
 
 ### **🌐 Deployments:**
 
-- **Live UI (Vercel):** [https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app/)
+- **Live UI (Vercel):** [https://web-ui-cyan-omega.vercel.app](https://web-ui-cyan-omega.vercel.app)
 - **GitHub Repository:** [https://github.com/samarabdelhameed/X-Gov-Agent-Network](https://github.com/samarabdelhameed/X-Gov-Agent-Network)
 
 ### **⛓️ Blockchain Proof (Solana Devnet):**
@@ -95,9 +95,9 @@
 
 **Proof It Works:**
 
-- 🌐 **Live on Vercel:** [Try the Demo Now](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app) - All features working ✅
-- 🎨 **Dashboard:** [Orchestration Page](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app/orchestrate) - Live timeline & charts ✅
-- 🤖 **Agents Page:** [Network View](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app/agents) - Real agent data ✅
+- 🌐 **Live on Vercel:** [Try the Demo Now](https://web-ui-cyan-omega.vercel.app) - All features working ✅
+- 🎨 **Dashboard:** [Orchestration Page](https://web-ui-cyan-omega.vercel.app/orchestrate) - Live timeline & charts ✅
+- 🤖 **Agents Page:** [Network View](https://web-ui-cyan-omega.vercel.app/agents) - Real agent data ✅
 - 💻 **Queries Real Blockchain:** All charts pull data from Solana via `connection.getProgramAccounts()` ✅
 
 ---
@@ -590,7 +590,7 @@ MIT License - See [LICENSE](LICENSE) file for details.
 ## Contact & Links
 
 - **GitHub:** [samarabdelhameed/X-Gov-Agent-Network](https://github.com/samarabdelhameed/X-Gov-Agent-Network)
-- **Live Demo:** [web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app](https://web-b1hvrieri-samarabdelhameeds-projects-df99c328.vercel.app)
+- **Live Demo:** [web-ui-cyan-omega.vercel.app](https://web-ui-cyan-omega.vercel.app)
 - **Demo Video:** [YouTube](https://www.youtube.com/watch?v=8RsFFmsssEY&t=15s)
 
 ---

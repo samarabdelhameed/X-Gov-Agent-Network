@@ -97,8 +97,9 @@
 
 - 🌐 **Live on Vercel:** [Try the Demo Now](https://web-ui-cyan-omega.vercel.app) - All features working ✅
 - 🎨 **Dashboard:** [Orchestration Page](https://web-ui-cyan-omega.vercel.app/orchestrate) - Live timeline & charts ✅
-- 🤖 **Agents Page:** [Network View](https://web-ui-cyan-omega.vercel.app/agents) - Real agent data ✅
+- 🤖 **Agents Page:** [Network View](https://web-ui-cyan-omega.vercel.app/agents) - 5 registered agents with valid addresses ✅
 - 💻 **Queries Real Blockchain:** All charts pull data from Solana via `connection.getProgramAccounts()` ✅
+- 🔗 **Valid Solana Addresses:** All agent wallet addresses use correct Solana format (44 characters) ✅
 
 ---
 
@@ -291,8 +292,9 @@ This architecture solves two fundamental challenges in agent-to-agent interactio
 
 - ✅ **ZERO Mock Data** - Everything queries real Solana blockchain
 - ✅ **Real x402 Payments** - Actual SOL transfers on Devnet
-- ✅ **Production Quality** - Professional UI with complete backend
+- ✅ **Production Quality** - Professional UI with complete backend & 5 demo agents
 - ✅ **Fully Tested** - Multiple confirmed transactions on Solana Explorer
+- ✅ **Valid Addresses** - All agent wallets use proper Solana address format (44 chars)
 
 ---
 

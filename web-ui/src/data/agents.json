@@ -1,0 +1,88 @@
+{
+  "agents": [
+    {
+      "agent_id": "DataAnalystAgent",
+      "name": "Data Analyst Agent",
+      "pubkey": "5WSkYn7KmRUDWwasJwyXdCAxA2f7H94ifDoCAF7chyX",
+      "wallet": "5WSkYn7KmRUDWwasJwyXdCAxA2f7H94ifDoCAF7chyX",
+      "service_type": "data_scraper",
+      "api_url": "https://data-analyst-agent.example.com",
+      "reputation_score": 102,
+      "total_successful_txs": 2,
+      "total_failed_txs": 0,
+      "owner": "5WSkYn7KmRUDWwasJwyXdCAxA2f7H94ifDoCAF7chyX",
+      "status": "active",
+      "description": "Professional data scraping and analysis service with x402 payment integration",
+      "pricing": {
+        "per_request_sol": 0.005,
+        "per_request_usdc": 0.01
+      },
+      "capabilities": [
+        "web_scraping",
+        "data_analysis",
+        "price_tracking",
+        "market_insights"
+      ],
+      "registered_at": "2025-11-12T10:00:00Z",
+      "last_updated": "2025-11-12T11:16:12.335844Z"
+    },
+    {
+      "agent_id": "DataAnalystAgent_001",
+      "pubkey": "7vF8Qx2YnRdPwA9sJkL3MhT4uBzN6cVgE5pDrWfQ8xY",
+      "wallet": "7vF8Qx2YnRdPwA9sJkL3MhT4uBzN6cVgE5pDrWfQ8xY",
+      "reputation_score": 150,
+      "total_successful_txs": 25,
+      "total_failed_txs": 0,
+      "api_url": "https://data-analyst-pro.example.com",
+      "service_type": "data_scraper",
+      "owner": "7vF8Qx2YnRdPwA9sJkL3MhT4uBzN6cVgE5pDrWfQ8xY",
+      "status": "active",
+      "registered_at": "2025-11-12T11:17:53.204162Z"
+    },
+    {
+      "agent_id": "TextAnalystAgent_002",
+      "pubkey": "9mP4KxZ3qWnBvL2jRfT6yH8uGcN5dVeE7pDsXaQ1wY",
+      "wallet": "9mP4KxZ3qWnBvL2jRfT6yH8uGcN5dVeE7pDsXaQ1wY",
+      "reputation_score": 180,
+      "total_successful_txs": 35,
+      "total_failed_txs": 0,
+      "api_url": "https://text-analyst.example.com",
+      "service_type": "text_analyst",
+      "owner": "9mP4KxZ3qWnBvL2jRfT6yH8uGcN5dVeE7pDsXaQ1wY",
+      "status": "active",
+      "registered_at": "2025-11-12T11:17:53.204539Z"
+    },
+    {
+      "agent_id": "ImageProcessorAgent_003",
+      "pubkey": "4bR7LyT2pXnCwM3kSgV9zJ6uHdN8eWfF5qEtYbS0xZ",
+      "wallet": "4bR7LyT2pXnCwM3kSgV9zJ6uHdN8eWfF5qEtYbS0xZ",
+      "reputation_score": 120,
+      "total_successful_txs": 15,
+      "total_failed_txs": 0,
+      "api_url": "https://image-processor.example.com",
+      "service_type": "image_processor",
+      "owner": "4bR7LyT2pXnCwM3kSgV9zJ6uHdN8eWfF5qEtYbS0xZ",
+      "status": "active",
+      "registered_at": "2025-11-12T11:17:53.204731Z"
+    },
+    {
+      "agent_id": "CodeExecutorAgent_004",
+      "pubkey": "8nT6MyW4rZoEyN5lUhJ2zK9vHfP1gXeG7sGvZcT3xA",
+      "wallet": "8nT6MyW4rZoEyN5lUhJ2zK9vHfP1gXeG7sGvZcT3xA",
+      "reputation_score": 200,
+      "total_successful_txs": 50,
+      "total_failed_txs": 0,
+      "api_url": "https://code-executor.example.com",
+      "service_type": "code_executor",
+      "owner": "8nT6MyW4rZoEyN5lUhJ2zK9vHfP1gXeG7sGvZcT3xA",
+      "status": "active",
+      "registered_at": "2025-11-12T11:17:53.204921Z"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2025-11-12T11:17:53.204923Z",
+    "total_agents": 5
+  }
+}
+

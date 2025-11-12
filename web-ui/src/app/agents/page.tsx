@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Users, TrendingUp, DollarSign, ExternalLink, Activity } from 'lucide-react'
 import Link from 'next/link'
+import agentsData from '@/data/agents.json'
 
 type Agent = {
   agent_id: string
@@ -27,21 +28,33 @@ export default function AgentsPage() {
   const fetchAgents = async () => {
     try {
       setLoading(true)
-      const response = await fetch('http://localhost:5001/api/agents')
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch agents')
+      // Try to fetch from API first (if orchestrator is running)
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_ORCHESTRATOR_URL || 'http://localhost:5001'
+        const response = await fetch(`${apiUrl}/api/agents`, {
+          signal: AbortSignal.timeout(3000) // 3 second timeout
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.agents) {
+            setAgents(data.agents)
+            setError(null)
+            return
+          }
+        }
+      } catch (apiError) {
+        console.log('API not available, using static data:', apiError)
       }
       
-      const data = await response.json()
+      // Fallback to static data
+      console.log('Loading agents from static data...')
+      setAgents(agentsData.agents as Agent[])
+      setError(null)
       
-      if (data.success) {
-        setAgents(data.agents)
-      } else {
-        throw new Error(data.error || 'Unknown error')
-      }
     } catch (err) {
-      console.error('Error fetching agents:', err)
+      console.error('Error loading agents:', err)
       setError(err instanceof Error ? err.message : 'Failed to load agents')
     } finally {
       setLoading(false)
